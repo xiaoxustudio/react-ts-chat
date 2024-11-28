@@ -83,29 +83,26 @@ const User: React.FC = withAuth(() => {
 	const emitOpen = () => setSelectPeople(undefined);
 	// 左侧菜单路由跳转
 	const onClick = useCallback((e: MenuInfo) => {
-		const _title = (e.domEvent.target as HTMLAnchorElement).innerText;
-		if (_title === "联系人") {
-			Post("/api/user/get-friend", { user: username }).then((data) => {
-				if (data.code == RepCode.Success) {
-					const fdata = data.data as UserFriend[];
-					const pFdata = fdata.map((val) => ({
-						key: `${val.friend_id}/chat`,
-						label: val.friend_data.nickname,
-					}));
-					setMenuList(pFdata);
-				}
-			});
-		} else if (_title in ["联系人", "群聊"]) {
-			navigate(`/user/${e.key}`);
-		} else {
-			navigate(`/user/${e.key}`);
-		}
+		navigate(`/user/${e.key}`);
 	}, []);
+	const updateFriends = () => {
+		Post("/api/user/get-friend", { user: username }).then((data) => {
+			if (data.code == RepCode.Success) {
+				const fdata = data.data as UserFriend[];
+				const pFdata = fdata.map((val) => ({
+					key: `${val.friend_id}/chat`,
+					label: val.friend_data.nickname,
+				}));
+				setMenuList(pFdata);
+			}
+		});
+	};
 	const onOKHandle = () => {
 		setSelectPeople(undefined);
 	};
 	useEffect(() => {
 		setMenuList(items);
+		updateFriends();
 	}, []);
 	return (
 		<>

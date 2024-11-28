@@ -2,6 +2,7 @@ import { Flex } from "antd";
 import { ChatItem } from "./type";
 import style from "./index.module.less";
 import useUserStore from "@/store/useUserStore";
+import classNames from "classnames";
 
 interface ChatContainerProp {
 	list: ChatItem[];
@@ -14,17 +15,28 @@ function ChatContainer({ list }: ChatContainerProp) {
 			{list.map((item, index) => (
 				<Flex
 					justify={item.send_id === username ? "right" : "left"}
-					className={style.ChatItemBox}
+					className={classNames(style.ChatItemBox, {
+						[style.user_self]: item.send_id === username,
+					})}
 					key={index}
 					vertical
 				>
-					<Flex justify={item.send_id === username ? "right" : "left"}>
+					<Flex
+						className={style.NickName}
+						justify={item.send_id === username ? "right" : "left"}
+					>
 						{item.nickname}
 					</Flex>
-					<Flex justify={item.send_id === username ? "right" : "left"}>
+					<Flex
+						className={style.Content}
+						justify={item.send_id === username ? "right" : "left"}
+					>
 						{item.content}
 					</Flex>
-					<Flex justify={item.send_id === username ? "right" : "left"}>
+					<Flex
+						className={style.Time}
+						justify={item.send_id === username ? "right" : "left"}
+					>
 						{item.time}
 					</Flex>
 				</Flex>
