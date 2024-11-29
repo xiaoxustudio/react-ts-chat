@@ -4,7 +4,7 @@ import style from "./index.module.less";
 import ChatContainer from "@/components/ChatContainer/ChatContainer";
 // import { list } from "./mock";
 import useUserStore from "@/store/useUserStore";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { WsCode, wsUrl } from "@/consts";
 import useSend from "@/hook/useSend";
 import useServerStatus from "@/store/useServer";
@@ -19,6 +19,7 @@ function Chat() {
 	const [content, setContent] = useState("");
 	const [list, setList] = useState<any[]>([]);
 	const params = useParams();
+	const containerRef = useRef<HTMLDivElement | null>(null);
 	const handleSend = () => {
 		if (websocketInstance instanceof WebSocket && content.length > 0) {
 			if (websocketInstance.readyState === 1) {
@@ -30,6 +31,11 @@ function Chat() {
 				);
 				setContent("");
 			}
+		}
+	};
+	const scrollbottom = () => {
+		if (containerRef.current) {
+			containerRef.current.scrollIntoView();
 		}
 	};
 	useEffect(() => {
@@ -88,16 +94,20 @@ function Chat() {
 		ws.onerror = () => {
 			message.error("聊天断开失败！");
 		};
+		scrollbottom();
 		return () => {
 			ws.close();
 			clearInterval(intervalNum);
 			setStatus(0);
 		};
 	}, []);
+	useEffect(() => {
+		scrollbottom();
+	}, [list]);
 	return (
 		<Flex className={style.ChatBox} vertical>
 			<Flex flex={1}>
-				<ChatContainer list={list} />
+				<ChatContainer ref={containerRef} list={list} />
 			</Flex>
 			<Flex>
 				<Search
