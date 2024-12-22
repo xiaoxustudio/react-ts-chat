@@ -67,12 +67,14 @@ const ChatItem = forwardRef<HTMLDivElement, ChatItemProps>((props, ref) => {
 					<Image key={val} width={50} height={50} src={`${ServerUrl}/${val}`} />
 				))}
 			</Flex>
-			<Flex
-				justify={item.send_id === username ? "right" : "left"}
-				style={{ fontSize: "10px", color: "#ccc" }}
-			>
-				携带文件数：{item.files.length}
-			</Flex>
+			{item.files.length > 0 && (
+				<Flex
+					justify={item.send_id === username ? "right" : "left"}
+					style={{ fontSize: "10px", color: "#ccc" }}
+				>
+					携带文件数：{item.files.length}
+				</Flex>
+			)}
 			{/* 时间 */}
 			<Flex
 				className={style.Time}
