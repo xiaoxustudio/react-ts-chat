@@ -6,7 +6,7 @@ import React, {
 	useState,
 } from "react";
 import type { BreadcrumbProps, MenuProps } from "antd";
-import { Breadcrumb, Menu } from "antd";
+import { Breadcrumb, Button, Menu } from "antd";
 import classname from "classnames";
 import Title from "antd/es/typography/Title";
 import useUserStore from "@/store/useUserStore";
@@ -23,6 +23,8 @@ import ModalUser from "./components/ModalUser";
 import { items, MenuItem } from "./consts/inex";
 import withAuth from "@/hook/useWithAuth";
 import { RepCode } from "@/consts";
+import useUserChat from "@/store/useUserChat";
+import classNames from "classnames";
 
 interface MenuInfo {
 	key: string;
@@ -32,17 +34,18 @@ interface MenuInfo {
 type OnSearchType = NonUndefined<SearchProps["onChange"]>;
 const User: React.FC = withAuth(() => {
 	const navigate = useNavigate();
-	const { nickname } = useUserStore();
+	const { nickname, username } = useUserStore();
+	const { select, setSelect } = useUserChat();
 	const [selectPeople, setSelectPeople] = useState<ItemType | undefined>(); // 当前选择的联系人
 	const [isOpenShow, setIsOpenShow] = useState(false); // 是否可以显示下拉
-	const style_Content = classname(styles["container-item"]);
+	const [collapsed, setCollapsed] = useState(false); // 收缩菜单
+	const style_Content = classname(styles["container-content"]);
 	const computedOpen = useMemo(
 		() => Object.keys(selectPeople ?? {}).length > 1,
 		[selectPeople]
 	); // 是否显示Modal
 	const [MenuList, setMenuList] = useState<MenuItem[]>([]);
 	const [bc] = useState<BreadcrumbProps["items"]>([]);
-	const { username } = useUserStore();
 	const DMenuOptionCK = (e: any) => {
 		const _user = DMenuOption.items?.find((val) => val!.key == e.key);
 		setIsOpenShow(false);
@@ -84,6 +87,7 @@ const User: React.FC = withAuth(() => {
 	// 左侧菜单路由跳转
 	const onClick = useCallback((e: MenuInfo) => {
 		navigate(`/user/${e.key}`);
+		setSelect(e.key);
 	}, []);
 	const updateFriends = () => {
 		Post("/api/user/get-friend", { user: username }).then((data) => {
@@ -100,6 +104,10 @@ const User: React.FC = withAuth(() => {
 	const onOKHandle = () => {
 		setSelectPeople(undefined);
 	};
+	const toggleCollapsed = () => {
+		setCollapsed(!collapsed);
+	};
+
 	useEffect(() => {
 		setMenuList(items);
 		updateFriends();
@@ -107,19 +115,32 @@ const User: React.FC = withAuth(() => {
 	return (
 		<>
 			<div className={styles["container-flex"]}>
-				<div className={styles["container-side"]}>
-					<div style={{ padding: "2px 10px" }}>
-						<Title level={5}>{nickname}</Title>
+				{/* 左侧 */}
+				<div className={classNames(styles["container-side"])}>
+					<div
+						style={{
+							width: collapsed ? "80px" : "100%",
+							padding: "2px 10px",
+							borderInlineEnd: "1px solid rgba(5, 5, 5, 0.06)",
+						}}
+					>
+						<Title level={5} style={{ width: collapsed ? "40px" : "100%" }}>
+							{collapsed ? nickname.substring(0, 1) : nickname}
+							<Button onClick={toggleCollapsed} />
+						</Title>
 						<Breadcrumb items={bc} />
 					</div>
 					<Menu
+						style={{ height: "95%" }}
 						onClick={onClick}
 						mode="inline"
 						items={MenuList}
-						defaultSelectedKeys={[]}
+						defaultSelectedKeys={[select]}
+						inlineCollapsed={collapsed}
 					/>
 				</div>
-				<div style={{ width: "80%", height: "100%" }}>
+				{/* 右侧 */}
+				<div style={{ width: "100%", height: "100%" }}>
 					<SearchInput
 						open={isOpenShow}
 						options={DMenuOption}

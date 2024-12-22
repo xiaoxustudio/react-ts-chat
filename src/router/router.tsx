@@ -8,16 +8,11 @@ import NotFound from "@/pages/not-found/NotFound";
 const routes: RouteObject[] = [
 	{
 		path: "/",
-		loader: () => redirect("/home"),
+		loader: () => redirect("/user"),
 	},
 	{
 		element: <App />,
 		children: [
-			{
-				index: true,
-				path: "home",
-				Component: lazy(() => import("@/pages/Main")),
-			},
 			{
 				path: "user",
 				element: <User />,

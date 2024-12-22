@@ -1,4 +1,4 @@
-export interface ChatItem {
+export interface ChatItemData {
 	nickname: string;
 	send_id: string;
 	receive_id: string;

@@ -14,6 +14,7 @@ export enum WsCode {
 	HeartBeatClient,
 	Receive,
 	Send,
+	WithDraw,
 	CreateChannel,
 	DisConnectChannel,
 	UpdateMsgList,

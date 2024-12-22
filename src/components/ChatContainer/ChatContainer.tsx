@@ -1,16 +1,14 @@
-import { Flex } from "antd";
-import { ChatItem } from "./type";
-import style from "./index.module.less";
-import useUserStore from "@/store/useUserStore";
-import classNames from "classnames";
 import { ForwardedRef, forwardRef, useImperativeHandle, useRef } from "react";
+import { Flex } from "antd";
+import { ChatItemData } from "./type";
+import ChatItem from "./ChatItem";
+import style from "./index.module.less";
 
 interface ChatContainerProp {
-	list: ChatItem[];
+	list: ChatItemData[];
 }
 const ChatContainer = forwardRef(
 	({ list }: ChatContainerProp, ref: ForwardedRef<any>) => {
-		const { username } = useUserStore();
 		const containerRef = useRef<HTMLDivElement>(null);
 		useImperativeHandle(
 			ref,
@@ -30,33 +28,7 @@ const ChatContainer = forwardRef(
 		return (
 			<Flex ref={containerRef} className={style.ChatContainerBox} vertical>
 				{list.map((item, index) => (
-					<Flex
-						justify={item.send_id === username ? "right" : "left"}
-						className={classNames(style.ChatItemBox, {
-							[style.user_self]: item.send_id === username,
-						})}
-						key={index}
-						vertical
-					>
-						<Flex
-							className={style.NickName}
-							justify={item.send_id === username ? "right" : "left"}
-						>
-							{item.nickname}
-						</Flex>
-						<Flex
-							className={style.Content}
-							justify={item.send_id === username ? "right" : "left"}
-						>
-							{item.content}
-						</Flex>
-						<Flex
-							className={style.Time}
-							justify={item.send_id === username ? "right" : "left"}
-						>
-							{item.time}
-						</Flex>
-					</Flex>
+					<ChatItem key={index} item={item} index={index} />
 				))}
 			</Flex>
 		);

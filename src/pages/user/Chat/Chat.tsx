@@ -4,12 +4,13 @@ import style from "./index.module.less";
 import ChatContainer from "@/components/ChatContainer/ChatContainer";
 // import { list } from "./mock";
 import useUserStore from "@/store/useUserStore";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { WsCode, wsUrl } from "@/consts";
 import useSend from "@/hook/useSend";
 import useServerStatus from "@/store/useServer";
 import { useParams } from "react-router-dom";
 import { WsData } from "@/types";
+import ChatContext from "@/components/ChatContainer/utils/ChatContext";
 
 function Chat() {
 	const { username, token } = useUserStore();
@@ -38,6 +39,24 @@ function Chat() {
 			containerRef.current.scrollIntoView();
 		}
 	};
+	// 撤回消息
+	const onWidthDraw = useCallback(
+		(target: string, index: number) => {
+			console.log("撤回消息", target, index);
+			websocketInstance &&
+				websocketInstance.send(
+					sendWrapper({
+						type: WsCode.WithDraw,
+						message: "撤回",
+						data: {
+							index,
+						},
+					})
+				);
+		},
+		[sendWrapper, websocketInstance]
+	);
+	const ChatInject = useMemo(() => ({ onWidthDraw }), [onWidthDraw]);
 	useEffect(() => {
 		let intervalNum: NodeJS.Timeout | number = -1;
 		if (websocketInstance instanceof WebSocket) {
@@ -105,21 +124,23 @@ function Chat() {
 		scrollbottom();
 	}, [list]);
 	return (
-		<Flex className={style.ChatBox} vertical>
-			<Flex flex={1}>
-				<ChatContainer ref={containerRef} list={list} />
+		<ChatContext.Provider value={ChatInject}>
+			<Flex className={style.ChatBox} vertical>
+				<Flex flex={1}>
+					<ChatContainer ref={containerRef} list={list} />
+				</Flex>
+				<Flex>
+					<Search
+						value={content}
+						onChange={(e) => setContent(e.target.value)}
+						style={{ width: "100%" }}
+						onSearch={handleSend}
+						placeholder="请输入要聊天的内容"
+						enterButton="发送"
+					/>
+				</Flex>
 			</Flex>
-			<Flex>
-				<Search
-					value={content}
-					onChange={(e) => setContent(e.target.value)}
-					style={{ width: "100%" }}
-					onSearch={handleSend}
-					placeholder="请输入要聊天的内容"
-					enterButton="发送"
-				/>
-			</Flex>
-		</Flex>
+		</ChatContext.Provider>
 	);
 }
 export default Chat;

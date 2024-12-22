@@ -1,16 +1,15 @@
 import { Menu, MenuProps } from "antd";
-
-import { useState } from "react";
-type MenuItem = Required<MenuProps>["items"][number];
 import { Typography } from "antd";
 import { useNavigate } from "react-router";
 import useUserStore from "@/store/useUserStore";
+import useHeaderStore from "@/store/useHeader";
+type MenuItem = Required<MenuProps>["items"][number];
 const { Text } = Typography;
 
 function HeaderMenu() {
 	const navigate = useNavigate();
 	const { token, nickname, resetLogin } = useUserStore();
-	const [current, setCurrent] = useState("home");
+	const { select, setSelect } = useHeaderStore();
 	const handleTurnLogin = !token
 		? () => navigate("/login")
 		: () => navigate("/user");
@@ -51,7 +50,7 @@ function HeaderMenu() {
 
 	const onClick: MenuProps["onClick"] = (e) => {
 		if (e.key !== "Logo") {
-			setCurrent(e.key);
+			setSelect(e.key);
 			navigate(e.key);
 		}
 	};
@@ -60,7 +59,7 @@ function HeaderMenu() {
 		<>
 			<Menu
 				onClick={onClick}
-				selectedKeys={[current]}
+				selectedKeys={[select]}
 				mode="horizontal"
 				items={items}
 			/>
