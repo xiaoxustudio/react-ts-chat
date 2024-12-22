@@ -12,7 +12,7 @@ import Search from "antd/es/input/Search";
 import ChatContainer from "@/components/ChatContainer/ChatContainer";
 import useUserStore from "@/store/useUserStore";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { AllowFileType, WsCode, wsUrl } from "@/consts";
+import { AllowFileType, ServerUrl, WsCode, wsUrl } from "@/consts";
 import useSend from "@/hook/useSend";
 import useServerStatus from "@/store/useServer";
 import { useParams } from "react-router-dom";
@@ -21,6 +21,7 @@ import ChatContext from "@/components/ChatContainer/utils/ChatContext";
 import { PlusSquareOutlined } from "@ant-design/icons";
 import { FileType, getBase64 } from "@/utils";
 import style from "./index.module.less";
+import { clone } from "radash";
 
 interface PlusFilesProp {
 	action: string;
@@ -98,10 +99,19 @@ function Chat() {
 		return isAllow;
 	};
 
+	// 移除截图
+	const handleRemoveImage = (index: number) => {
+		const updatedList = [
+			...fileList.slice(0, index),
+			...fileList.slice(index + 1),
+		];
+		setFileList(updatedList);
+	};
+
 	// 回车发送消息
 	const handleSend = () => {
 		if (websocketInstance instanceof WebSocket && content.length > 0) {
-			if (websocketInstance.readyState === 1) {
+			if (websocketInstance.readyState) {
 				websocketInstance.send(
 					sendWrapper({
 						type: WsCode.Send,
@@ -126,17 +136,25 @@ function Chat() {
 	// 撤回消息
 	const onWidthDraw = useCallback(
 		(target: string, index: number) => {
-			websocketInstance &&
-				websocketInstance.send(
-					sendWrapper({
-						type: WsCode.WithDraw,
-						message: "撤回",
-						data: {
-							target,
-							index,
-						},
-					})
-				);
+			{
+				if (
+					websocketInstance instanceof WebSocket &&
+					websocketInstance.readyState
+				) {
+					websocketInstance.send(
+						sendWrapper({
+							type: WsCode.WithDraw,
+							message: "撤回",
+							data: {
+								target,
+								index,
+							},
+						})
+					);
+				} else {
+					message.error("聊天异常，撤回失败！");
+				}
+			}
 		},
 		[sendWrapper, websocketInstance]
 	);
@@ -219,7 +237,7 @@ function Chat() {
 				</Flex>
 				<Flex className={style.ChatBoxBottom}>
 					<div className={style.ChatBoxFiles}>
-						{fileList.map((val) => (
+						{fileList.map((val, index) => (
 							<Popover
 								key={val.uid}
 								content={
@@ -234,6 +252,7 @@ function Chat() {
 										margin: "4px",
 									}}
 									message={val.fileName ?? val.name}
+									onClose={() => handleRemoveImage(index)}
 									type="info"
 									closable
 								/>
@@ -261,7 +280,7 @@ function Chat() {
 						onSearch={handleSend}
 						suffix={
 							<PlusFiles
-								action="http://localhost:8000/user/upload-img"
+								action={`${ServerUrl}/user/upload-img`}
 								onChange={handleChange}
 								beforeUpload={beforeUpload}
 							/>
