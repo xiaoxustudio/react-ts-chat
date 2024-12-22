@@ -16,9 +16,9 @@ import { AllowFileType, WsCode, wsUrl } from "@/consts";
 import useSend from "@/hook/useSend";
 import useServerStatus from "@/store/useServer";
 import { useParams } from "react-router-dom";
-import { RepsonseData, WsData } from "@/types";
+import { WsData } from "@/types";
 import ChatContext from "@/components/ChatContainer/utils/ChatContext";
-import { CodeSandboxCircleFilled, PlusSquareOutlined } from "@ant-design/icons";
+import { PlusSquareOutlined } from "@ant-design/icons";
 import { FileType, getBase64 } from "@/utils";
 import style from "./index.module.less";
 
