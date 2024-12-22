@@ -1,5 +1,5 @@
 import { forwardRef, useContext, useState } from "react";
-import { Flex, Popover } from "antd";
+import { Flex, Popover, Image } from "antd";
 import useUserStore from "@/store/useUserStore";
 import classNames from "classnames";
 import type { ChatItemData } from "./type";
@@ -7,6 +7,7 @@ import { MoreOutlined } from "@ant-design/icons";
 import { Content } from "antd/es/layout/layout";
 import style from "./chat-item.module.less";
 import ChatContext from "./utils/ChatContext";
+import { ServerUrl } from "@/consts";
 
 interface ChatItemProps {
 	item: ChatItemData;
@@ -46,18 +47,33 @@ const ChatItem = forwardRef<HTMLDivElement, ChatItemProps>((props, ref) => {
 			vertical
 			{...reset}
 		>
+			{/* 用户名称 */}
 			<Flex
 				className={style.NickName}
 				justify={item.send_id === username ? "right" : "left"}
 			>
 				{item.nickname}
 			</Flex>
+			{/* 内容 */}
 			<Flex
 				className={style.Content}
 				justify={item.send_id === username ? "right" : "left"}
 			>
 				{item.content}
 			</Flex>
+			{/* 附件 */}
+			<Flex justify={item.send_id === username ? "right" : "left"}>
+				{item.files.map((val) => (
+					<Image key={val} width={50} height={50} src={`${ServerUrl}/${val}`} />
+				))}
+			</Flex>
+			<Flex
+				justify={item.send_id === username ? "right" : "left"}
+				style={{ fontSize: "10px", color: "#ccc" }}
+			>
+				携带文件数：{item.files.length}
+			</Flex>
+			{/* 时间 */}
 			<Flex
 				className={style.Time}
 				justify={item.send_id === username ? "right" : "left"}

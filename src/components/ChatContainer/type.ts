@@ -4,4 +4,6 @@ export interface ChatItemData {
 	receive_id: string;
 	content: string;
 	time: string;
+	type: string;
+	files: string[];
 }

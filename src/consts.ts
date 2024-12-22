@@ -20,4 +20,12 @@ export enum WsCode {
 	UpdateMsgList,
 }
 
-export const wsUrl = "http://localhost:8000/imc"; // imc地址
+// 允许的上传文件类型
+export const AllowFileType = Object.keys({
+	"image/png": true,
+	"image/jpeg": true,
+	"image/jpg": true,
+});
+
+export const ServerUrl = "http://localhost:8000"; // 服务器地址
+export const wsUrl = `${ServerUrl}/imc`; // imc地址

@@ -23,10 +23,6 @@ function HeaderMenu() {
 			),
 		},
 		{
-			label: "首页",
-			key: "home",
-		},
-		{
 			label: !token ? "未登录" : "用户：" + nickname,
 			key: "user",
 			onTitleClick: handleTurnLogin,
