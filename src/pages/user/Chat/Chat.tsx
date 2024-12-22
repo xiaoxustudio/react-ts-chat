@@ -21,7 +21,6 @@ import ChatContext from "@/components/ChatContainer/utils/ChatContext";
 import { PlusSquareOutlined } from "@ant-design/icons";
 import { FileType, getBase64 } from "@/utils";
 import style from "./index.module.less";
-import { clone } from "radash";
 
 interface PlusFilesProp {
 	action: string;
