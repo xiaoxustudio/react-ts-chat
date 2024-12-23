@@ -12,8 +12,6 @@ import Title from "antd/es/typography/Title";
 import useUserStore from "@/store/useUserStore";
 import { Outlet, useNavigate } from "react-router";
 import Lodding from "../Lodding";
-import styles from "./user.module.less";
-import { Post } from "../../alova";
 import { debounce } from "radash";
 import { NonUndefined, UserFriend, UserInfo } from "@/types";
 import SearchInput from "./components/SearchInput";
@@ -25,6 +23,9 @@ import withAuth from "@/hook/useWithAuth";
 import { RepCode } from "@/consts";
 import useUserChat from "@/store/useUserChat";
 import classNames from "classnames";
+import GetFriend from "@/apis/user/get-friend";
+import SearchUser from "@/apis/user/search-user";
+import styles from "./user.module.less";
 
 interface MenuInfo {
 	key: string;
@@ -62,7 +63,7 @@ const User: React.FC = withAuth(() => {
 		if (nickname.length < 2) {
 			return;
 		}
-		Post("/api/user/search-users", { nickname }).then((data) => {
+		SearchUser({ nickname }).then((data) => {
 			if (data.code == RepCode.Success) {
 				const op = data.data as UserInfo[];
 				if (Array.isArray(op) && op.length > 0) {
@@ -90,7 +91,7 @@ const User: React.FC = withAuth(() => {
 		setSelect(e.key);
 	}, []);
 	const updateFriends = () => {
-		Post("/api/user/get-friend", { user: username }).then((data) => {
+		GetFriend({ user: username }).then((data) => {
 			if (data.code == RepCode.Success) {
 				const fdata = data.data as UserFriend[];
 				const pFdata = fdata.map((val) => ({

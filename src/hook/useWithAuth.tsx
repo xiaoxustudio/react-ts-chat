@@ -4,9 +4,9 @@ import { Navigate } from "react-router-dom";
 import { JSX } from "react/jsx-runtime";
 import { useLocation, useNavigate } from "react-router";
 import userContext from "./useUserContext";
-import { Post } from "@/alova";
 import { message } from "antd";
 import { RepCode } from "@/consts";
+import ValidToken from "@/apis/user/valid-token";
 
 const withAuth = (Component: FC) => {
 	const AuthenticatedComponent = (props: JSX.IntrinsicAttributes) => {
@@ -21,7 +21,7 @@ const withAuth = (Component: FC) => {
 		if (!context.Auth) {
 			context.isAuthRequstSending = true;
 			const get = () =>
-				Post("/api/user/valid-token", { token })
+				ValidToken({ token })
 					.then((data) => {
 						if (data.code == RepCode.Success) {
 							context.isAuthRequstSending = false;

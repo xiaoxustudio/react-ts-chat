@@ -1,15 +1,15 @@
 import { Button, Checkbox, Form, Input, Card, Col, Row, message } from "antd";
 import type { FormProps } from "antd";
-import loginStyle from "@/styles/login.module.less";
 import { useNavigate } from "react-router";
-import { Post } from "@/alova";
 import { omit } from "radash";
 import useUserStore from "@/store/useUserStore";
-import { LoginData, UserInfo } from "@/types";
+import { UserInfo } from "@/types";
 import { useSearchParams } from "react-router-dom";
 import userContext from "@/hook/useUserContext";
 import { useContext } from "react";
 import { RepCode } from "@/consts";
+import LoginUser, { LoginUserProp } from "@/apis/user/login-user";
+import loginStyle from "@/styles/login.module.less";
 
 type FieldType = {
 	username?: string;
@@ -24,25 +24,23 @@ function Login() {
 	const [messageApi, contextHolder] = message.useMessage();
 	const { setToken, setNickName, setUserName, setData } = useUserStore();
 	const onFinish: FormProps<FieldType>["onFinish"] = (values) => {
-		Post<LoginData>("/api/user/login", omit(values, ["remember"])).then(
-			(data) => {
-				if (data.code == RepCode.Success) {
-					messageApi.success(data.msg);
-					setToken(data.data.token);
-					setNickName(data.data.nickname);
-					setUserName(data.data.username);
-					setData(data.data as unknown as UserInfo);
-					context.Auth = true;
-					context.AuthTime = Date.now();
-					setTimeout(() => {
-						// 跳转
-						navigate(serchPramas.get("next") ?? "/", { replace: true });
-					}, 1000);
-				} else {
-					messageApi.error(data.msg);
-				}
+		LoginUser(omit(values, ["remember"]) as LoginUserProp).then((data) => {
+			if (data.code == RepCode.Success) {
+				messageApi.success(data.msg);
+				setToken(data.data.token);
+				setNickName(data.data.nickname);
+				setUserName(data.data.username);
+				setData(data.data as unknown as UserInfo);
+				context.Auth = true;
+				context.AuthTime = Date.now();
+				setTimeout(() => {
+					// 跳转
+					navigate(serchPramas.get("next") ?? "/", { replace: true });
+				}, 1000);
+			} else {
+				messageApi.error(data.msg);
 			}
-		);
+		});
 	};
 
 	const onFinishFailed: FormProps<FieldType>["onFinishFailed"] = (
@@ -60,10 +58,7 @@ function Login() {
 			<Row className={loginStyle["row-container"]}>
 				<Col span={8}></Col>
 				<Col className={loginStyle.container} span={8}>
-					<Card
-						className={loginStyle["login-card"]}
-						title="后台登录"
-					>
+					<Card className={loginStyle["login-card"]} title="后台登录">
 						<Form
 							name="basic"
 							labelCol={{ span: 8 }}

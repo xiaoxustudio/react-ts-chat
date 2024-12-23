@@ -2,10 +2,10 @@ import { Button, Checkbox, Form, Input, Card, Col, Row, message } from "antd";
 import type { FormProps } from "antd";
 import loginStyle from "@/styles/login.module.less";
 import { useNavigate } from "react-router";
-import { Post } from "@/alova";
 import { omit } from "radash";
 import { useSearchParams } from "react-router-dom";
 import { RepCode } from "@/consts";
+import RegisterUser from "@/apis/user/register-user";
 type FieldType = {
 	username?: string;
 	password?: string;
@@ -19,7 +19,7 @@ function Login() {
 	const [serchPramas] = useSearchParams();
 	const [messageApi, contextHolder] = message.useMessage();
 	const onFinish: FormProps<FieldType>["onFinish"] = (values) => {
-		Post("/api/user/register", omit(values, ["remember"])).then((data) => {
+		RegisterUser(omit(values, ["remember"])).then((data) => {
 			if (data.code == RepCode.Success) {
 				messageApi.success("注册成功!");
 				setTimeout(TurnLogin, 1000);

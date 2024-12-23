@@ -1,4 +1,4 @@
-import { Post } from "@/alova";
+import GetUser from "@/apis/user/get-user";
 import { RepCode } from "@/consts";
 import useUserStore from "@/store/useUserStore";
 import { UserInfo } from "@/types";
@@ -9,7 +9,7 @@ import { useEffect } from "react";
 function UserInfoComp() {
 	const { username, setData, data } = useUserStore();
 	useEffect(() => {
-		Post("/api/user/get-user", { user: username }).then((data) => {
+		GetUser({ user: username }).then((data) => {
 			if (data.code == RepCode.Success) {
 				message.success(data.msg);
 				setData(data.data as unknown as UserInfo);

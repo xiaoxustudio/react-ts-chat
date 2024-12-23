@@ -1,10 +1,12 @@
-import { Post } from "@/alova";
+import AddFriend from "@/apis/user/add-friend";
+import GetUser from "@/apis/user/get-user";
 import { RepCode } from "@/consts";
 import { UserInfo } from "@/types";
 import { Flex, message, Modal, ModalProps, Spin, Tag } from "antd";
 import { ItemType } from "antd/es/menu/interface";
 import Title from "antd/es/typography/Title";
 import { FC, useEffect, useState } from "react";
+
 interface _Prop {
 	selectPeople: ItemType | undefined; // 选择的联系人
 	emitOpen: () => void; // 切换打开状态的方法
@@ -14,28 +16,24 @@ const ModalUser: FC<NProp> = (prop) => {
 	const [userinfo, setUserInfo] = useState<UserInfo | undefined>();
 	const [loadding, setLodding] = useState(false);
 	const addFriend = () => {
-		Post("/api/user/add-friend", { user: prop.selectPeople!.key }).then(
-			(data) => {
-				if (data.code == RepCode.Success) {
-					message.success(data.msg);
-					prop.emitOpen();
-				} else {
-					message.error(data.msg);
-				}
+		AddFriend({ user: prop.selectPeople!.key as string }).then((data) => {
+			if (data.code == RepCode.Success) {
+				message.success(data.msg);
+				prop.emitOpen();
+			} else {
+				message.error(data.msg);
 			}
-		);
+		});
 	};
 	useEffect(() => {
 		if (prop.open) {
 			setLodding(true);
-			Post("/api/user/get-user", { user: prop.selectPeople!.key }).then(
-				(data) => {
-					if (data.code == RepCode.Success) {
-						setUserInfo(data.data as unknown as UserInfo);
-					}
-					setLodding(false);
+			GetUser({ user: prop.selectPeople!.key as string }).then((data) => {
+				if (data.code == RepCode.Success) {
+					setUserInfo(data.data as unknown as UserInfo);
 				}
-			);
+				setLodding(false);
+			});
 		}
 	}, [prop.open]);
 	return (
