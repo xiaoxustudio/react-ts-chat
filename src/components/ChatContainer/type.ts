@@ -1,4 +1,5 @@
 export interface ChatItemData {
+	avatar: string; // 头像
 	nickname: string; // 昵称
 	send_id: string; // 发送方ID
 	receive_id: string; // 接收方ID

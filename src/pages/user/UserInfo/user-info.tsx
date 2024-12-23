@@ -1,26 +1,48 @@
 import GetUser from "@/apis/user/get-user";
-import { RepCode } from "@/consts";
+import { RepCode, ServerUrl } from "@/consts";
 import useUserStore from "@/store/useUserStore";
 import { UserInfo } from "@/types";
-import { Flex, message, Tag } from "antd";
+import { Button, Flex, Image, message, Tag, Upload } from "antd";
 import Title from "antd/es/typography/Title";
 import { useEffect } from "react";
+import style from "./index.module.less";
 
 function UserInfoComp() {
-	const { username, setData, data } = useUserStore();
-	useEffect(() => {
+	const { username, setData, data, token } = useUserStore();
+	const updateInfo = () =>
 		GetUser({ user: username }).then((data) => {
 			if (data.code == RepCode.Success) {
-				message.success(data.msg);
 				setData(data.data as unknown as UserInfo);
 			} else {
 				message.error(data.msg);
 			}
 		});
+	useEffect(() => {
+		updateInfo();
 	}, []);
 	return (
 		<>
 			<Flex gap="middle" vertical>
+				<div>
+					<Title level={5}>头像：</Title>
+					<Flex style={{ alignItems: "center", gap: `5px` }}>
+						<Image
+							wrapperClassName={style.iconAvatarMask}
+							className={style.iconAvatar}
+							width={64}
+							height={64}
+							src={`${ServerUrl}${data.avatar?.slice(1)}`}
+						/>
+						<Upload
+							headers={{ Authorization: `${token}` }}
+							action={`${ServerUrl}/user/change-avatar`}
+							onChange={() => updateInfo()}
+							showUploadList={false}
+						>
+							<Button>修改头像</Button>
+						</Upload>
+					</Flex>
+				</div>
 				<div>
 					<Title level={5}>昵称：</Title>
 					{data.nickname}

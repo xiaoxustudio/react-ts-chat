@@ -24,6 +24,7 @@ export interface UserInfo {
 	phone: string | null;
 	register_time: string;
 	username: string;
+	avatar: string;
 }
 export interface UserFriend {
 	add_time: string;

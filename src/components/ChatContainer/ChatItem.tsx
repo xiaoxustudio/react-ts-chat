@@ -1,9 +1,9 @@
 import { forwardRef, useContext, useState } from "react";
-import { Flex, Popover, Image } from "antd";
+import { Flex, Popover, Image, Avatar } from "antd";
 import useUserStore from "@/store/useUserStore";
 import classNames from "classnames";
 import type { ChatItemData } from "./type";
-import { MoreOutlined } from "@ant-design/icons";
+import { MoreOutlined, UserOutlined } from "@ant-design/icons";
 import { Content } from "antd/es/layout/layout";
 import style from "./chat-item.module.less";
 import ChatContext from "./utils/ChatContext";
@@ -52,7 +52,21 @@ const ChatItem = forwardRef<HTMLDivElement, ChatItemProps>((props, ref) => {
 				className={style.NickName}
 				justify={item.send_id === username ? "right" : "left"}
 			>
+				{item.send_id !== username && (
+					<Avatar
+						size="large"
+						icon={!item.avatar && <UserOutlined />}
+						src={`${ServerUrl}${item.avatar?.slice(1)}`}
+					/>
+				)}
 				{item.nickname}
+				{item.send_id === username && (
+					<Avatar
+						size="large"
+						icon={!item.avatar && <UserOutlined />}
+						src={`${ServerUrl}${item.avatar?.slice(1)}`}
+					/>
+				)}
 			</Flex>
 			{/* 内容 */}
 			<Flex
