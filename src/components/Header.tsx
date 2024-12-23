@@ -33,7 +33,7 @@ function HeaderMenu() {
 							label: "个人信息",
 						},
 						{
-							key: "login-out",
+							key: "/login",
 							label: "登出",
 							onClick: () => {
 								resetLogin();
