@@ -19,7 +19,6 @@ const routes: RouteObject[] = [
 				children: [
 					{
 						index: true,
-						path: "chat-people",
 						Component: lazy(() => import("@/pages/user/People/People")),
 					},
 					{

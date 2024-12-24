@@ -7,12 +7,9 @@ export const items: MenuItem[] = [
 		type: "divider",
 	},
 	{
-		key: "grp",
+		key: "group",
 		label: "",
 		type: "group",
-		children: [
-			{ key: "chat-people", label: "联系人" },
-			{ key: "chat-group", label: "群聊" },
-		],
+		children: [],
 	},
 ];
