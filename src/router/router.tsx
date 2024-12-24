@@ -1,4 +1,4 @@
-import { redirect, RouteObject } from "react-router-dom";
+import { RouteObject, redirect } from "react-router-dom";
 import { lazy } from "react";
 import App from "@/App";
 import Login from "@/pages/Login";

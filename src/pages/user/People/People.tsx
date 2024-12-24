@@ -1,5 +1,5 @@
 import style from "./people.module.less";
-import { Flex, Empty } from "antd";
+import { Empty, Flex } from "antd";
 function People() {
 	return (
 		<>

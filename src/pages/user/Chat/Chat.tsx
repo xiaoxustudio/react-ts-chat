@@ -1,16 +1,16 @@
 import {
 	Alert,
+	Avatar,
+	Dropdown,
 	Flex,
-	message,
+	Image,
+	Input,
+	MenuProps,
 	Popover,
 	Upload,
 	UploadFile,
 	UploadProps,
-	Image,
-	Input,
-	Avatar,
-	Dropdown,
-	MenuProps,
+	message,
 } from "antd";
 import ChatContainer from "@/components/ChatContainer/ChatContainer";
 import useUserStore from "@/store/useUserStore";

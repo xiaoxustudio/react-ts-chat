@@ -1,13 +1,13 @@
-import { forwardRef, useContext, useState } from "react";
-import { Flex, Popover, Image, Avatar } from "antd";
-import useUserStore from "@/store/useUserStore";
+import { Avatar, Flex, Image, Popover } from "antd";
 import classNames from "classnames";
-import type { ChatItemData } from "./type";
-import { MoreOutlined, UserOutlined } from "@ant-design/icons";
-import { Content } from "antd/es/layout/layout";
-import style from "./chat-item.module.less";
-import ChatContext from "./utils/ChatContext";
+import { forwardRef, useContext, useState } from "react";
 import { ServerUrl } from "@/consts";
+import { Content } from "antd/es/layout/layout";
+import useUserStore from "@/store/useUserStore";
+import { MoreOutlined, UserOutlined } from "@ant-design/icons";
+import ChatContext from "./utils/ChatContext";
+import type { ChatItemData } from "./type";
+import style from "./chat-item.module.less";
 
 interface ChatItemProps {
 	item: ChatItemData;

@@ -18,7 +18,7 @@ import SearchInput from "./components/SearchInput";
 import { ItemType } from "antd/es/menu/interface";
 import { SearchProps } from "antd/es/input";
 import ModalUser from "./components/ModalUser";
-import { items, MenuItem } from "./consts/inex";
+import { MenuItem, items } from "./consts/inex";
 import withAuth from "@/hook/useWithAuth";
 import { RepCode, ServerUrl } from "@/consts";
 import useUserChat from "@/store/useUserChat";

@@ -1,4 +1,4 @@
-import { Button, Checkbox, Form, Input, Card, Col, Row, message } from "antd";
+import { Button, Card, Checkbox, Col, Form, Input, Row, message } from "antd";
 import type { FormProps } from "antd";
 import loginStyle from "@/styles/login.module.less";
 import { useNavigate } from "react-router";

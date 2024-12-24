@@ -1,7 +1,7 @@
 import { ForwardedRef, forwardRef, useImperativeHandle, useRef } from "react";
 import { Flex } from "antd";
-import { ChatItemData } from "./type";
 import ChatItem from "./ChatItem";
+import { ChatItemData } from "./type";
 import style from "./index.module.less";
 
 interface ChatContainerProp {

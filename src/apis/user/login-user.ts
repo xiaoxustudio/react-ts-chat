@@ -1,5 +1,5 @@
-import { Post } from "@/alova";
 import { LoginData } from "@/types";
+import { Post } from "@/alova";
 
 export interface LoginUserProp {
 	username: string;

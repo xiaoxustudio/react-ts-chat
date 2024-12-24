@@ -2,7 +2,7 @@ import GetUser from "@/apis/user/get-user";
 import { RepCode, ServerUrl } from "@/consts";
 import useUserStore from "@/store/useUserStore";
 import { UserInfo } from "@/types";
-import { Button, Flex, Image, message, Tag, Upload } from "antd";
+import { Button, Flex, Image, Tag, Upload, message } from "antd";
 import Title from "antd/es/typography/Title";
 import { useEffect } from "react";
 import style from "./index.module.less";

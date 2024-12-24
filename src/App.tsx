@@ -1,7 +1,7 @@
-import { Outlet } from "react-router";
+import { Flex } from "antd";
 import Lodding from "./pages/Lodding";
 // import HeaderMenu from "./components/Header";
-import { Flex } from "antd";
+import { Outlet } from "react-router";
 
 function App() {
 	return (

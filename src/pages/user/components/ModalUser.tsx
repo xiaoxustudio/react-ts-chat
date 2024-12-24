@@ -4,7 +4,7 @@ import GetUser from "@/apis/user/get-user";
 import { RepCode } from "@/consts";
 import siderBus from "@/event-bus/sider-bus";
 import { UserInfo } from "@/types";
-import { Flex, message, Modal, ModalProps, Spin, Tag } from "antd";
+import { Flex, Modal, ModalProps, Spin, Tag, message } from "antd";
 import { ItemType } from "antd/es/menu/interface";
 import Title from "antd/es/typography/Title";
 

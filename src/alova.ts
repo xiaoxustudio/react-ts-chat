@@ -1,6 +1,6 @@
-import { createAlova, RequestBody } from "alova";
-import adapterFetch from "alova/fetch";
+import { RequestBody, createAlova } from "alova";
 import { RepsonseData } from "./types";
+import adapterFetch from "alova/fetch";
 
 const alovaInstance = createAlova({
 	requestAdapter: adapterFetch(),
