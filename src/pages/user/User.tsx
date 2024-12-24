@@ -6,7 +6,7 @@ import React, {
 	useState,
 } from "react";
 import type { BreadcrumbProps, MenuProps } from "antd";
-import { Breadcrumb, Button, Flex, Menu } from "antd";
+import { Avatar, Breadcrumb, Button, Flex, Menu } from "antd";
 import classname from "classnames";
 import Title from "antd/es/typography/Title";
 import useUserStore from "@/store/useUserStore";
@@ -20,12 +20,13 @@ import { SearchProps } from "antd/es/input";
 import ModalUser from "./components/ModalUser";
 import { items, MenuItem } from "./consts/inex";
 import withAuth from "@/hook/useWithAuth";
-import { RepCode } from "@/consts";
+import { RepCode, ServerUrl } from "@/consts";
 import useUserChat from "@/store/useUserChat";
 import classNames from "classnames";
 import GetFriend from "@/apis/user/get-friend";
 import SearchUser from "@/apis/user/search-user";
 import styles from "./user.module.less";
+import { UserOutlined } from "@ant-design/icons";
 
 interface MenuInfo {
 	key: string;
@@ -97,6 +98,14 @@ const User: React.FC = withAuth(() => {
 				const pFdata = fdata.map((val) => ({
 					key: `${val.friend_id}/chat`,
 					label: val.friend_data.nickname,
+					icon: (
+						<Avatar
+							style={{ color: "white" }}
+							size="small"
+							icon={!val.friend_data.avatar && <UserOutlined />}
+							src={`${ServerUrl}${!val.friend_data.avatar?.slice(1)}`}
+						/>
+					),
 				}));
 				setMenuList(pFdata);
 			}
