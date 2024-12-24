@@ -7,11 +7,49 @@
 	flex-direction: column;
 }
 .ChatBoxFiles {
+	width: 80%;
 	display: flex;
 	flex-direction: row;
-	width: 100%;
 	overflow-x: scroll;
+	overflow-y: hidden;
 	&::-webkit-scrollbar {
 		display: none;
 	}
+}
+.ChatUploadButton {
+	margin: 0 20px;
+}
+.ChatSendButton {
+	cursor: pointer;
+	&:hover {
+		color: #ccc;
+	}
+	:global {
+		.ant-btn {
+			background-color: transparent;
+			color: black;
+		}
+	}
+}
+
+.ChatInputBox {
+	height: 92px;
+	width: 100%;
+	border-radius: 8px;
+	border: solid 1px #ccc;
+	display: flex;
+	flex-direction: column;
+}
+.ChatInputWrapper {
+	height: 100%;
+	width: 100%;
+	text-align: start;
+	border: none;
+	outline: none;
+	box-shadow: none !important;
+}
+.ChatInputBottom {
+	width: 100%;
+	justify-content: right;
+	padding: 0 20px 20px 0;
 }

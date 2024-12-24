@@ -7,8 +7,8 @@ import {
 	UploadFile,
 	UploadProps,
 	Image,
+	Input,
 } from "antd";
-import Search from "antd/es/input/Search";
 import ChatContainer from "@/components/ChatContainer/ChatContainer";
 import useUserStore from "@/store/useUserStore";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -18,7 +18,7 @@ import useServerStatus from "@/store/useServer";
 import { useParams } from "react-router-dom";
 import { WsData } from "@/types";
 import ChatContext from "@/components/ChatContainer/utils/ChatContext";
-import { PlusSquareOutlined } from "@ant-design/icons";
+import { PlusSquareOutlined, SendOutlined } from "@ant-design/icons";
 import { FileType, getBase64 } from "@/utils";
 import style from "./index.module.less";
 
@@ -26,6 +26,7 @@ interface PlusFilesProp {
 	action: string;
 	onChange: UploadProps["onChange"];
 	beforeUpload: UploadProps["beforeUpload"];
+	fileList: UploadProps["fileList"];
 }
 interface PreviewImageProp {
 	FileObject: FileType;
@@ -37,7 +38,7 @@ function PreviewImage({ FileObject }: PreviewImageProp) {
 		getBase64(FileObject).then((data) => {
 			setImageString(data);
 		});
-	}, []);
+	}, []); //eslint-disable-line
 	return (
 		<Image
 			width={200}
@@ -48,13 +49,21 @@ function PreviewImage({ FileObject }: PreviewImageProp) {
 	);
 }
 
-function PlusFiles({ action, onChange, beforeUpload }: PlusFilesProp) {
+function PlusFiles({
+	action,
+	onChange,
+	beforeUpload,
+	fileList,
+}: PlusFilesProp) {
 	return (
 		<Upload
 			action={action}
 			onChange={onChange}
+			fileList={fileList}
 			beforeUpload={beforeUpload}
 			showUploadList={false}
+			multiple={false}
+			maxCount={2}
 		>
 			<PlusSquareOutlined style={{ cursor: "pointer" }} />
 		</Upload>
@@ -64,7 +73,7 @@ function PlusFiles({ action, onChange, beforeUpload }: PlusFilesProp) {
 function Chat() {
 	const { username, token } = useUserStore();
 	const { sendWrapper } = useSend();
-	const { setStatus } = useServerStatus();
+	const { setStatus, status: Status } = useServerStatus();
 	const [websocketInstance, setWS] = useState<WebSocket | null>();
 	const [content, setContent] = useState("");
 	const [list, setList] = useState<any[]>([]);
@@ -95,6 +104,7 @@ function Chat() {
 			);
 			return Upload.LIST_IGNORE;
 		}
+
 		return isAllow;
 	};
 
@@ -158,6 +168,10 @@ function Chat() {
 		[sendWrapper, websocketInstance]
 	);
 
+	useEffect(() => {
+		scrollbottom();
+	}, [list]);
+
 	const ChatInject = useMemo(() => ({ onWidthDraw }), [onWidthDraw]);
 
 	useEffect(() => {
@@ -199,6 +213,7 @@ function Chat() {
 				message.success("连接通信正常！");
 			} else {
 				message.error("聊天加载失败！");
+				setStatus(0);
 			}
 		};
 		ws.onmessage = (e: MessageEvent) => {
@@ -206,7 +221,7 @@ function Chat() {
 			switch (data.type) {
 				case WsCode.HeartBeatServer:
 					// console.log("接收到服务器心跳：", data);
-					setStatus(1);
+					!Status && setStatus(1);
 					break;
 				case WsCode.UpdateMsgList:
 					console.log("接收到服务器更新数据：", data);
@@ -217,6 +232,7 @@ function Chat() {
 		ws.onerror = () => {
 			message.error("聊天断开失败！");
 			ws.close();
+			setStatus(0);
 		};
 		scrollbottom();
 		return () => {
@@ -224,18 +240,16 @@ function Chat() {
 			clearInterval(intervalNum);
 			setStatus(0);
 		};
-	}, []);
-	useEffect(() => {
-		scrollbottom();
-	}, [list]);
+	}, []); //eslint-disable-line
+
 	return (
 		<ChatContext.Provider value={ChatInject}>
 			<Flex className={style.ChatBox} vertical>
-				<Flex flex={1}>
+				<Flex flex={1} style={{ minHeight: "500px" }}>
 					<ChatContainer ref={containerRef} list={list} />
 				</Flex>
 				<Flex className={style.ChatBoxBottom}>
-					<div className={style.ChatBoxFiles}>
+					<Flex className={style.ChatBoxFiles}>
 						{fileList.map((val, index) => (
 							<Popover
 								key={val.uid}
@@ -271,22 +285,31 @@ function Chat() {
 								val.substring(val.lastIndexOf("/") + 1)
 							).join("、")}
 						</span>
-					</div>
-					<Search
-						value={content}
-						onChange={(e) => setContent(e.target.value)}
-						style={{ width: "100%" }}
-						onSearch={handleSend}
-						suffix={
-							<PlusFiles
-								action={`${ServerUrl}/user/upload-img`}
-								onChange={handleChange}
-								beforeUpload={beforeUpload}
+					</Flex>
+					<div className={style.ChatInputBox}>
+						<Input
+							value={content}
+							onInput={(e) => setContent((e.target as HTMLInputElement).value)}
+							onPressEnter={handleSend}
+							className={style.ChatInputWrapper}
+							placeholder="请输入要聊天的内容"
+						/>
+						<Flex className={style.ChatInputBottom}>
+							<Flex className={style.ChatUploadButton}>
+								<PlusFiles
+									action={`${ServerUrl}/user/upload-img`}
+									onChange={handleChange}
+									beforeUpload={beforeUpload}
+									fileList={fileList}
+								/>
+							</Flex>
+							<SendOutlined
+								onClick={handleSend}
+								className={style.ChatSendButton}
+								size={20}
 							/>
-						}
-						placeholder="请输入要聊天的内容"
-						enterButton="发送"
-					/>
+						</Flex>
+					</div>
 				</Flex>
 			</Flex>
 		</ChatContext.Provider>

@@ -19,7 +19,7 @@ function UserInfoComp() {
 		});
 	useEffect(() => {
 		updateInfo();
-	}, []);
+	}, []); //eslint-disable-line
 	return (
 		<>
 			<Flex gap="middle" vertical>

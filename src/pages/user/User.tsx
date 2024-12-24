@@ -6,7 +6,7 @@ import React, {
 	useState,
 } from "react";
 import type { BreadcrumbProps, MenuProps } from "antd";
-import { Breadcrumb, Button, Menu } from "antd";
+import { Breadcrumb, Button, Flex, Menu } from "antd";
 import classname from "classnames";
 import Title from "antd/es/typography/Title";
 import useUserStore from "@/store/useUserStore";
@@ -89,7 +89,7 @@ const User: React.FC = withAuth(() => {
 	const onClick = useCallback((e: MenuInfo) => {
 		navigate(`/user/${e.key}`);
 		setSelect(e.key);
-	}, []);
+	}, []); //eslint-disable-line
 	const updateFriends = () => {
 		GetFriend({ user: username }).then((data) => {
 			if (data.code == RepCode.Success) {
@@ -112,10 +112,10 @@ const User: React.FC = withAuth(() => {
 	useEffect(() => {
 		setMenuList(items);
 		updateFriends();
-	}, []);
+	}, []); //eslint-disable-line
 	return (
 		<>
-			<div className={styles["container-flex"]}>
+			<Flex className={styles["container-flex"]}>
 				{/* 左侧 */}
 				<div className={classNames(styles["container-side"])}>
 					<div
@@ -152,7 +152,7 @@ const User: React.FC = withAuth(() => {
 						<Lodding children={<Outlet />}></Lodding>
 					</div>
 				</div>
-			</div>
+			</Flex>
 			<ModalUser
 				open={computedOpen}
 				selectPeople={selectPeople}
