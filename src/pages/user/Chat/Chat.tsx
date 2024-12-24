@@ -8,6 +8,7 @@ import {
 	UploadProps,
 	Image,
 	Input,
+	Avatar,
 } from "antd";
 import ChatContainer from "@/components/ChatContainer/ChatContainer";
 import useUserStore from "@/store/useUserStore";
@@ -16,11 +17,17 @@ import { AllowFileType, ServerUrl, WsCode, wsUrl } from "@/consts";
 import useSend from "@/hook/useSend";
 import useServerStatus from "@/store/useServer";
 import { useParams } from "react-router-dom";
-import { WsData } from "@/types";
+import { UserInfo, WsData } from "@/types";
 import ChatContext from "@/components/ChatContainer/utils/ChatContext";
-import { PlusSquareOutlined, SendOutlined } from "@ant-design/icons";
+import {
+	PlusSquareOutlined,
+	SendOutlined,
+	UserOutlined,
+} from "@ant-design/icons";
 import { FileType, getBase64 } from "@/utils";
 import style from "./index.module.less";
+import useUserChat from "@/store/useUserChat";
+import GetUser from "@/apis/user/get-user";
 
 interface PlusFilesProp {
 	action: string;
@@ -74,12 +81,16 @@ function Chat() {
 	const { username, token } = useUserStore();
 	const { sendWrapper } = useSend();
 	const { setStatus, status: Status } = useServerStatus();
+	const { select } = useUserChat();
 	const [websocketInstance, setWS] = useState<WebSocket | null>();
 	const [content, setContent] = useState("");
 	const [list, setList] = useState<any[]>([]);
 	const params = useParams();
 	const containerRef = useRef<HTMLDivElement | null>(null);
 	const [fileList, setFileList] = useState<UploadFile[]>([]);
+	const [currentPeople, setCurrentPeople] = useState(
+		null as unknown as UserInfo
+	);
 
 	// 处理上传文件
 	const handleChange: UploadProps["onChange"] = (info) => {
@@ -234,6 +245,11 @@ function Chat() {
 			ws.close();
 			setStatus(0);
 		};
+		GetUser({ user: select.substring(0, select.indexOf("/")) }).then((val) => {
+			if (val.code) {
+				setCurrentPeople(val.data as unknown as UserInfo);
+			}
+		});
 		scrollbottom();
 		return () => {
 			ws.close();
@@ -245,7 +261,21 @@ function Chat() {
 	return (
 		<ChatContext.Provider value={ChatInject}>
 			<Flex className={style.ChatBox} vertical>
-				<Flex flex={1} style={{ minHeight: "500px" }}>
+				<Flex className={style.ChatHeader}>
+					<Flex align="center" className={style.ChatHeaderNickName}>
+						<Avatar
+							size="large"
+							icon={
+								(!currentPeople || !currentPeople?.avatar) && <UserOutlined />
+							}
+							src={`${ServerUrl}${currentPeople?.avatar?.slice(1)}`}
+						/>
+						{currentPeople && currentPeople.nickname}
+					</Flex>
+					<Flex>{""}</Flex>
+					<Flex>{""}</Flex>
+				</Flex>
+				<Flex flex={1} style={{ minHeight: "500px", paddingTop: "20px" }}>
 					<ChatContainer ref={containerRef} list={list} />
 				</Flex>
 				<Flex className={style.ChatBoxBottom}>
