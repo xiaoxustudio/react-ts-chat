@@ -20,6 +20,7 @@ import { useParams } from "react-router-dom";
 import { UserInfo, WsData } from "@/types";
 import ChatContext from "@/components/ChatContainer/utils/ChatContext";
 import {
+	MenuOutlined,
 	PlusSquareOutlined,
 	SendOutlined,
 	UserOutlined,
@@ -272,10 +273,14 @@ function Chat() {
 						/>
 						{currentPeople && currentPeople.nickname}
 					</Flex>
-					<Flex>{""}</Flex>
-					<Flex>{""}</Flex>
+					<Flex style={{ width: "100%" }} flex="1">
+						<span></span>
+					</Flex>
+					<Flex>
+						<MenuOutlined style={{ cursor: "pointer" }} />
+					</Flex>
 				</Flex>
-				<Flex flex={1} style={{ minHeight: "500px", paddingTop: "20px" }}>
+				<Flex flex={1} style={{ minHeight: "500px" }}>
 					<ChatContainer ref={containerRef} list={list} />
 				</Flex>
 				<Flex className={style.ChatBoxBottom}>

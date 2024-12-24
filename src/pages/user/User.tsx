@@ -33,6 +33,7 @@ interface MenuInfo {
 	domEvent: SyntheticEvent;
 	keyPath: string[];
 }
+
 type OnSearchType = NonUndefined<SearchProps["onChange"]>;
 const User: React.FC = withAuth(() => {
 	const navigate = useNavigate();
@@ -73,6 +74,14 @@ const User: React.FC = withAuth(() => {
 							({
 								key: val.username,
 								label: val.nickname,
+								icon: (
+									<Avatar
+										style={{ color: "white" }}
+										size="small"
+										icon={!val.avatar && <UserOutlined />}
+										src={`${ServerUrl}${val.avatar?.slice(1)}`}
+									/>
+								),
 							} as ItemType)
 					) as ItemType[];
 					setDMenuOption((val) => {
@@ -103,7 +112,7 @@ const User: React.FC = withAuth(() => {
 							style={{ color: "white" }}
 							size="small"
 							icon={!val.friend_data.avatar && <UserOutlined />}
-							src={`${ServerUrl}${!val.friend_data.avatar?.slice(1)}`}
+							src={`${ServerUrl}${val.friend_data.avatar?.slice(1)}`}
 						/>
 					),
 				}));

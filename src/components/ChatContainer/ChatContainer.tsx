@@ -27,6 +27,7 @@ const ChatContainer = forwardRef(
 
 		return (
 			<Flex ref={containerRef} className={style.ChatContainerBox} vertical>
+				<div style={{ width: "100%", padding: "20px" }}></div>
 				{list.map((item, index) => (
 					<ChatItem key={index} item={item} index={index} />
 				))}
