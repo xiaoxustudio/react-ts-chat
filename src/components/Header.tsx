@@ -18,7 +18,7 @@ function HeaderMenu() {
 			key: "Logo",
 			extra: (
 				<Text strong style={{ cursor: "pointer" }}>
-					交交友
+					Chat Online
 				</Text>
 			),
 		},
