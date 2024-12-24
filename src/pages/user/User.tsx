@@ -27,6 +27,7 @@ import GetFriend from "@/apis/user/get-friend";
 import SearchUser from "@/apis/user/search-user";
 import styles from "./user.module.less";
 import { UserOutlined } from "@ant-design/icons";
+import siderBus from "@/event-bus/sider-bus";
 
 interface MenuInfo {
 	key: string;
@@ -127,9 +128,14 @@ const User: React.FC = withAuth(() => {
 		setCollapsed(!collapsed);
 	};
 
-	useEffect(() => {
+	const updateSider = () => {
 		setMenuList(items);
 		updateFriends();
+	};
+
+	useEffect(() => {
+		updateSider();
+		siderBus.on("updateSider", () => updateSider());
 	}, []); //eslint-disable-line
 	return (
 		<>

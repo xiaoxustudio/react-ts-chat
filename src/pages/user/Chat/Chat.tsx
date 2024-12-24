@@ -9,6 +9,8 @@ import {
 	Image,
 	Input,
 	Avatar,
+	Dropdown,
+	MenuProps,
 } from "antd";
 import ChatContainer from "@/components/ChatContainer/ChatContainer";
 import useUserStore from "@/store/useUserStore";
@@ -16,7 +18,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AllowFileType, ServerUrl, WsCode, wsUrl } from "@/consts";
 import useSend from "@/hook/useSend";
 import useServerStatus from "@/store/useServer";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { UserInfo, WsData } from "@/types";
 import ChatContext from "@/components/ChatContainer/utils/ChatContext";
 import {
@@ -29,6 +31,8 @@ import { FileType, getBase64 } from "@/utils";
 import style from "./index.module.less";
 import useUserChat from "@/store/useUserChat";
 import GetUser from "@/apis/user/get-user";
+import DelFriend from "@/apis/user/del-friend";
+import siderBus from "@/event-bus/sider-bus";
 
 interface PlusFilesProp {
 	action: string;
@@ -79,6 +83,7 @@ function PlusFiles({
 }
 
 function Chat() {
+	const navigate = useNavigate();
 	const { username, token } = useUserStore();
 	const { sendWrapper } = useSend();
 	const { setStatus, status: Status } = useServerStatus();
@@ -92,6 +97,23 @@ function Chat() {
 	const [currentPeople, setCurrentPeople] = useState(
 		null as unknown as UserInfo
 	);
+	const items: MenuProps["items"] = [
+		{
+			key: "1",
+			label: "删除好友",
+			onClick() {
+				DelFriend({ user: currentPeople.username }).then((data) => {
+					if (data.code) {
+						message.success("删除成功！");
+						navigate("/user", { replace: true });
+						siderBus.emit("updateSider");
+					} else {
+						message.error(`删除失败：${data.msg}`);
+					}
+				});
+			},
+		},
+	];
 
 	// 处理上传文件
 	const handleChange: UploadProps["onChange"] = (info) => {
@@ -277,7 +299,9 @@ function Chat() {
 						<span></span>
 					</Flex>
 					<Flex>
-						<MenuOutlined style={{ cursor: "pointer" }} />
+						<Dropdown menu={{ items }}>
+							<MenuOutlined style={{ cursor: "pointer" }} />
+						</Dropdown>
 					</Flex>
 				</Flex>
 				<Flex flex={1} style={{ minHeight: "500px" }}>

@@ -1,6 +1,7 @@
 import AddFriend from "@/apis/user/add-friend";
 import GetUser from "@/apis/user/get-user";
 import { RepCode } from "@/consts";
+import siderBus from "@/event-bus/sider-bus";
 import { UserInfo } from "@/types";
 import { Flex, message, Modal, ModalProps, Spin, Tag } from "antd";
 import { ItemType } from "antd/es/menu/interface";
@@ -20,6 +21,7 @@ const ModalUser: FC<NProp> = (prop) => {
 			if (data.code == RepCode.Success) {
 				message.success(data.msg);
 				prop.emitOpen();
+				siderBus.emit("updateSider");
 			} else {
 				message.error(data.msg);
 			}
@@ -35,7 +37,7 @@ const ModalUser: FC<NProp> = (prop) => {
 				setLodding(false);
 			});
 		}
-	}, [prop.open]);
+	}, [prop.open]); //eslint-disable-line
 	return (
 		<Modal
 			title={userinfo?.nickname ?? ""}
