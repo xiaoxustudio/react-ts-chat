@@ -1,3 +1,4 @@
+import { FC, useEffect, useState } from "react";
 import AddFriend from "@/apis/user/add-friend";
 import GetUser from "@/apis/user/get-user";
 import { RepCode } from "@/consts";
@@ -6,7 +7,6 @@ import { UserInfo } from "@/types";
 import { Flex, message, Modal, ModalProps, Spin, Tag } from "antd";
 import { ItemType } from "antd/es/menu/interface";
 import Title from "antd/es/typography/Title";
-import { FC, useEffect, useState } from "react";
 
 interface _Prop {
 	selectPeople: ItemType | undefined; // 选择的联系人

@@ -26,6 +26,23 @@ export default tseslint.config(
 			"@typescript-eslint/no-explicit-any": ["off"],
 			"@typescript-eslint/no-unused-vars": ["off"],
 			"@typescript-eslint/no-unused-expressions": ["off"],
+			"sort-imports": [
+				"error",
+				{
+					ignoreCase: false,
+					ignoreDeclarationSort: false,
+					ignoreMemberSort: false,
+					memberSyntaxSortOrder: ["none", "all", "multiple", "single"],
+				},
+			],
+		},
+	},
+	{
+		extends: ["plugin:prettier/recommended"],
+		plugins: ["prettier"],
+
+		rules: {
+			"prettier/prettier": "error",
 		},
 	}
 );
