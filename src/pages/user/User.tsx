@@ -180,17 +180,13 @@ const User: React.FC = withAuth(() => {
                                 />
                             )}
                         </Content>
-                        <Flex
-                            style={{ width: collapsed ? '40px' : '100%' }}
-                            align="center"
-                            vertical={collapsed}
-                        >
+                        <Flex className="w-full gap-2" align="center" vertical={collapsed}>
                             <Avatar
                                 className="w-8 min-w-8"
                                 icon={!data.avatar && <UserOutlined />}
                                 src={`${ServerUrl}${data.avatar?.slice(1)}`}
                             />
-                            <Content>
+                            <Content className="text-center">
                                 {collapsed ? (
                                     <Tooltip title={nickname} placement="right">
                                         {nickname.substring(0, 2)}
