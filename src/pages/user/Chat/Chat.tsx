@@ -304,7 +304,7 @@ function Chat() {
 						</Dropdown>
 					</Flex>
 				</Flex>
-				<Flex flex={1} style={{ minHeight: "500px" }}>
+				<Flex flex={1} style={{ minHeight: "500px", height: "80%" }}>
 					<ChatContainer ref={containerRef} list={list} />
 				</Flex>
 				<Flex className={style.ChatBoxBottom}>
