@@ -1,6 +1,6 @@
 import React, { SyntheticEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import type { DropdownProps, MenuProps } from 'antd';
-import { Avatar, Dropdown, Flex, Menu } from 'antd';
+import { Avatar, Dropdown, Flex, Menu, Tooltip } from 'antd';
 import classname from 'classnames';
 import useUserStore from '@/store/useUserStore';
 import { Outlet, useNavigate } from 'react-router';
@@ -190,7 +190,15 @@ const User: React.FC = withAuth(() => {
                                 icon={!data.avatar && <UserOutlined />}
                                 src={`${ServerUrl}${data.avatar?.slice(1)}`}
                             />
-                            <Content>{collapsed ? nickname.substring(0, 2) : nickname}</Content>
+                            <Content>
+                                {collapsed ? (
+                                    <Tooltip title={nickname} placement="right">
+                                        {nickname.substring(0, 2)}
+                                    </Tooltip>
+                                ) : (
+                                    nickname
+                                )}
+                            </Content>
                         </Flex>
                     </Flex>
                     <Menu
