@@ -1,6 +1,6 @@
 import React, { SyntheticEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import type { DropdownProps, MenuProps } from 'antd';
-import { Avatar, Button, Dropdown, Flex, Menu } from 'antd';
+import { Avatar, Dropdown, Flex, Menu } from 'antd';
 import classname from 'classnames';
 import useUserStore from '@/store/useUserStore';
 import { Outlet, useNavigate } from 'react-router';
@@ -89,7 +89,7 @@ const User: React.FC = withAuth(() => {
                                 label: val.nickname,
                                 icon: (
                                     <Avatar
-                                        style={{ color: 'white' }}
+                                        className="-ml-2 bg-white"
                                         size="small"
                                         icon={!val.avatar && <UserOutlined />}
                                         src={`${ServerUrl}${val.avatar?.slice(1)}`}
@@ -122,8 +122,7 @@ const User: React.FC = withAuth(() => {
                     label: val.friend_data.nickname,
                     icon: (
                         <Avatar
-                            style={{ color: 'white' }}
-                            size="small"
+                            className="bg-white"
                             icon={!val.friend_data.avatar && <UserOutlined />}
                             src={`${ServerUrl}${val.friend_data.avatar?.slice(1)}`}
                         />
@@ -153,7 +152,12 @@ const User: React.FC = withAuth(() => {
         <>
             <Flex className={styles['container-flex']}>
                 {/* 左侧 */}
-                <Flex className={classNames(styles['container-side'])} vertical>
+                <Flex
+                    className={classNames(styles['container-side'], {
+                        [styles['collapsed-layer']]: collapsed,
+                    })}
+                    vertical
+                >
                     <Flex
                         className="gap-5 p-2"
                         style={{
@@ -165,13 +169,13 @@ const User: React.FC = withAuth(() => {
                         <Content>
                             {collapsed && (
                                 <RightOutlined
-                                    className="rounded p-2 transition-colors duration-200 hover:bg-gray-200"
+                                    className="select-none rounded p-2 transition-colors duration-200 hover:bg-gray-200"
                                     onClick={toggleCollapsed}
                                 />
                             )}
                             {!collapsed && (
                                 <LeftOutlined
-                                    className="rounded p-2 transition-colors duration-200 hover:bg-gray-200"
+                                    className="select-none rounded p-2 transition-colors duration-200 hover:bg-gray-200"
                                     onClick={toggleCollapsed}
                                 />
                             )}
