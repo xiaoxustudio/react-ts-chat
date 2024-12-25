@@ -166,7 +166,7 @@ const User: React.FC = withAuth(() => {
                         }}
                         vertical
                     >
-                        <Content>
+                        <Flex className={collapsed ? 'w-full justify-center' : ''} align="center">
                             {collapsed && (
                                 <RightOutlined
                                     className="select-none rounded p-2 transition-colors duration-200 hover:bg-gray-200"
@@ -179,7 +179,7 @@ const User: React.FC = withAuth(() => {
                                     onClick={toggleCollapsed}
                                 />
                             )}
-                        </Content>
+                        </Flex>
                         <Flex className="w-full gap-2" align="center" vertical={collapsed}>
                             <Avatar
                                 className="w-8 min-w-8"
@@ -205,7 +205,7 @@ const User: React.FC = withAuth(() => {
                         defaultSelectedKeys={[select]}
                         inlineCollapsed={collapsed}
                     />
-                    <Flex style={{ padding: '5px' }}>
+                    <Flex style={{ padding: '5px 0 20px 0' }}>
                         <Flex>{''}</Flex>
                         <Flex>{''}</Flex>
                         <Flex className="w-full select-none items-center justify-center">

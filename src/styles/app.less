@@ -1,13 +1,31 @@
 *,
 *:before,
 *:after {
-	box-sizing: border-box;
+    box-sizing: border-box;
 }
 body,
 #root {
-	padding: 0;
-	margin: 0;
-	width: 100vw;
-	height: 100vh;
-	overflow: hidden;
+    padding: 0;
+    margin: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+}
+
+::-webkit-scrollbar {
+    width: 4px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: 16px;
+    border: 6px solid transparent;
+    background-clip: clip;
+    background-color: #d9dbdf;
+    box-shadow: 8px 0 0 transparent inset;
+    cursor: pointer;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
 }
