@@ -1,8 +1,7 @@
 import React, { SyntheticEvent, useCallback, useEffect, useMemo, useState } from 'react';
-import type { BreadcrumbProps, DropdownProps, MenuProps } from 'antd';
-import { Avatar, Breadcrumb, Button, Dropdown, Flex, Menu } from 'antd';
+import type { DropdownProps, MenuProps } from 'antd';
+import { Avatar, Button, Dropdown, Flex, Menu } from 'antd';
 import classname from 'classnames';
-import Title from 'antd/es/typography/Title';
 import useUserStore from '@/store/useUserStore';
 import { Outlet, useNavigate } from 'react-router';
 import Lodding from '../Lodding';
@@ -20,8 +19,9 @@ import classNames from 'classnames';
 import GetFriend from '@/apis/user/get-friend';
 import SearchUser from '@/apis/user/search-user';
 import styles from './user.module.less';
-import { SettingOutlined, UserOutlined } from '@ant-design/icons';
+import { LeftOutlined, RightOutlined, SettingOutlined, UserOutlined } from '@ant-design/icons';
 import siderBus from '@/event-bus/sider-bus';
+import { Content } from 'antd/es/layout/layout';
 
 interface MenuInfo {
     key: string;
@@ -33,7 +33,7 @@ type OnSearchType = NonUndefined<SearchProps['onChange']>;
 const User: React.FC = withAuth(() => {
     const navigate = useNavigate();
     const { resetLogin } = useUserStore();
-    const { nickname, username } = useUserStore();
+    const { nickname, username, data } = useUserStore();
     const { select, setSelect } = useUserChat();
     const [selectPeople, setSelectPeople] = useState<ItemType | undefined>(); // 当前选择的联系人
     const [isOpenShow, setIsOpenShow] = useState(false); // 是否可以显示下拉
@@ -41,7 +41,6 @@ const User: React.FC = withAuth(() => {
     const style_Content = classname(styles['container-content']);
     const computedOpen = useMemo(() => Object.keys(selectPeople ?? {}).length > 1, [selectPeople]); // 是否显示Modal
     const [MenuList, setMenuList] = useState<MenuItem[]>([]);
-    const [bc] = useState<BreadcrumbProps['items']>([]);
     const DMenuOptionCK = (e: any) => {
         const _user = DMenuOption.items?.find((val) => val!.key == e.key);
         setIsOpenShow(false);
@@ -155,19 +154,41 @@ const User: React.FC = withAuth(() => {
             <Flex className={styles['container-flex']}>
                 {/* 左侧 */}
                 <Flex className={classNames(styles['container-side'])} vertical>
-                    <div
+                    <Flex
+                        className="gap-5 p-2"
                         style={{
                             width: collapsed ? '80px' : '100%',
-                            padding: '2px 10px',
                             borderInlineEnd: '1px solid rgba(5, 5, 5, 0.06)',
                         }}
+                        vertical
                     >
-                        <Title level={5} style={{ width: collapsed ? '40px' : '100%' }}>
-                            {collapsed ? nickname.substring(0, 1) : nickname}
-                            <Button onClick={toggleCollapsed} />
-                        </Title>
-                        <Breadcrumb items={bc} />
-                    </div>
+                        <Content>
+                            {collapsed && (
+                                <RightOutlined
+                                    className="rounded p-2 transition-colors duration-200 hover:bg-gray-200"
+                                    onClick={toggleCollapsed}
+                                />
+                            )}
+                            {!collapsed && (
+                                <LeftOutlined
+                                    className="rounded p-2 transition-colors duration-200 hover:bg-gray-200"
+                                    onClick={toggleCollapsed}
+                                />
+                            )}
+                        </Content>
+                        <Flex
+                            style={{ width: collapsed ? '40px' : '100%' }}
+                            align="center"
+                            vertical={collapsed}
+                        >
+                            <Avatar
+                                className="w-8 min-w-8"
+                                icon={!data.avatar && <UserOutlined />}
+                                src={`${ServerUrl}${data.avatar?.slice(1)}`}
+                            />
+                            <Content>{collapsed ? nickname.substring(0, 2) : nickname}</Content>
+                        </Flex>
+                    </Flex>
                     <Menu
                         style={{ height: '95%' }}
                         onClick={onClick}
