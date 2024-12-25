@@ -8,3 +8,7 @@ export interface ChatItemData {
 	type: string; // 消息类型  Common 901 System 902
 	files: string[];
 }
+export enum ChatItemType {
+	Common = 901,
+	System,
+}
