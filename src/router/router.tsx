@@ -19,11 +19,7 @@ const routes: RouteObject[] = [
                 children: [
                     {
                         index: true,
-                        Component: lazy(() => import('@/pages/user/People/People')),
-                    },
-                    {
-                        path: 'chat-group',
-                        Component: lazy(() => import('@/pages/user/Group/Group')),
+                        Component: lazy(() => import('@/pages/user/Default/default')),
                     },
                     {
                         path: 'user-info',
