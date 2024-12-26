@@ -1,0 +1,76 @@
+.ChatBox {
+	width: 100%;
+	height: 100%;
+	position: relative;
+}
+
+.ChatBoxBottom {
+	flex-direction: column;
+	height: 150px;
+}
+.ChatBoxFiles {
+	width: 80%;
+	display: flex;
+	flex-direction: row;
+	overflow-x: scroll;
+	overflow-y: hidden;
+	&::-webkit-scrollbar {
+		display: none;
+	}
+}
+.ChatUploadButton {
+	margin: 0 20px;
+}
+.ChatSendButton {
+	cursor: pointer;
+	&:hover {
+		color: #ccc;
+	}
+	:global {
+		.ant-btn {
+			background-color: transparent;
+			color: black;
+		}
+	}
+}
+
+.ChatInputBox {
+	height: 92px;
+	width: 100%;
+	border-radius: 8px;
+	border: solid 1px #ccc;
+	display: flex;
+	flex-direction: column;
+}
+.ChatInputWrapper {
+	height: 100%;
+	width: 100%;
+	text-align: start;
+	border: none;
+	outline: none;
+	box-shadow: none !important;
+}
+.ChatInputBottom {
+	width: 100%;
+	justify-content: right;
+	padding: 0 20px 20px 0;
+}
+
+.ChatHeader {
+	width: 100%;
+	height: 55px;
+	padding: 0 10px;
+	position: absolute;
+	background: rgba(255, 255, 255, 0.3);
+	backdrop-filter: blur(5px);
+	border-radius: 0 0 8px 8px;
+	border: solid 1px #ddd;
+	border-top-width: 0;
+	z-index: 1;
+}
+
+.ChatHeaderNickName {
+	height: 100%;
+	padding: 0 8px;
+	gap: 10px;
+}

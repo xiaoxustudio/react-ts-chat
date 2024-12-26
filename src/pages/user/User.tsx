@@ -118,6 +118,7 @@ const User: React.FC = withAuth(() => {
     const emitOpen = () => setSelectPeople(undefined);
     // 左侧菜单路由跳转
     const onClick = useCallback((e: MenuInfo) => {
+        console.log('MenuInfo', e);
         navigate(`/user/${e.key}`);
         setSelect(e.key);
     }, []); //eslint-disable-line
@@ -159,7 +160,7 @@ const User: React.FC = withAuth(() => {
                     if (data.code == RepCode.Success) {
                         const fdata = data.data as UserGroup[];
                         const pFdata = fdata.map((val) => ({
-                            key: `${val.group_id}/chat`,
+                            key: `${val.group_id}/group`,
                             label: (
                                 <Flex>
                                     <Tooltip title={val.group_data.group_name} placement="right">

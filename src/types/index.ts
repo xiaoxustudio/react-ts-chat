@@ -34,7 +34,7 @@ export interface UserFriend {
     friend_data: UserInfo;
 }
 
-export interface Group {
+export interface GroupInfo {
     id: number;
     group_id: string;
     group_status: number;
@@ -50,7 +50,7 @@ export interface UserGroup {
     group_id: string;
     add_time: string;
     auth: number;
-    group_data: Group;
+    group_data: GroupInfo;
 }
 
 interface _SearchInputProps {

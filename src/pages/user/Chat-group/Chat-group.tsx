@@ -15,11 +15,11 @@ import {
 import ChatContainer from '@/components/ChatContainer/ChatContainer';
 import useUserStore from '@/store/useUserStore';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { AllowFileType, ServerUrl, WsCode, wsUrl } from '@/consts';
+import { AllowFileType, ServerUrl, WsCode, wsUrl, wsUrlGroup } from '@/consts';
 import useSend from '@/hook/useSend';
 import useServerStatus from '@/store/useServer';
 import { useNavigate, useParams } from 'react-router-dom';
-import { UserInfo, WsData } from '@/types';
+import { GroupInfo, WsData } from '@/types';
 import ChatContext from '@/components/ChatContainer/utils/ChatContext';
 import { MenuOutlined, PlusSquareOutlined, SendOutlined, UserOutlined } from '@ant-design/icons';
 import { FileType, getBase64 } from '@/utils';
@@ -28,6 +28,7 @@ import useUserChat from '@/store/useUserChat';
 import GetUser from '@/apis/user/get-user';
 import DelFriend from '@/apis/user/del-friend';
 import siderBus from '@/event-bus/sider-bus';
+import GetGroup from '@/apis/group/get-group';
 
 interface PlusFilesProp {
     action: string;
@@ -72,7 +73,7 @@ function PlusFiles({ action, onChange, beforeUpload, fileList }: PlusFilesProp) 
     );
 }
 
-function Chat() {
+function ChatGroup() {
     const navigate = useNavigate();
     const { username, token } = useUserStore();
     const { sendWrapper } = useSend();
@@ -84,21 +85,21 @@ function Chat() {
     const params = useParams();
     const containerRef = useRef<HTMLDivElement | null>(null);
     const [fileList, setFileList] = useState<UploadFile[]>([]);
-    const [currentPeople, setCurrentPeople] = useState(null as unknown as UserInfo);
+    const [currentGroup, setCurrentGroup] = useState(null as unknown as GroupInfo);
     const items: MenuProps['items'] = [
         {
             key: '1',
-            label: '删除好友',
+            label: '删除群组',
             onClick() {
-                DelFriend({ user: currentPeople.username }).then((data) => {
-                    if (data.code) {
-                        message.success('删除成功！');
-                        navigate('/user', { replace: true });
-                        siderBus.emit('updateSider');
-                    } else {
-                        message.error(`删除失败：${data.msg}`);
-                    }
-                });
+                // DelFriend({ user: currentGroup.username }).then((data) => {
+                //     if (data.code) {
+                //         message.success('删除成功！');
+                //         navigate('/user', { replace: true });
+                //         siderBus.emit('updateSider');
+                //     } else {
+                //         message.error(`删除失败：${data.msg}`);
+                //     }
+                // });
             },
         },
     ];
@@ -169,7 +170,7 @@ function Chat() {
                             type: WsCode.WithDraw,
                             message: '撤回',
                             data: {
-                                target: data.target,
+                                group: data.target ? data.target : undefined,
                                 index: data.index,
                             },
                         }),
@@ -186,14 +187,17 @@ function Chat() {
         scrollbottom();
     }, [list]);
 
-    const ChatInject = useMemo(() => ({ onWidthDraw }), [onWidthDraw]);
+    const ChatInject = useMemo(
+        () => ({ onWidthDraw, group_id: params.group_id }),
+        [onWidthDraw, params.group_id],
+    );
 
     useEffect(() => {
         let intervalNum: NodeJS.Timeout | number = -1;
         if (websocketInstance instanceof WebSocket) {
             websocketInstance.close();
         }
-        const ws = new WebSocket(`${wsUrl}?user=${username}&token=${token}`);
+        const ws = new WebSocket(`${wsUrlGroup}?user=${username}&token=${token}`);
         setWS(ws);
         ws.onopen = () => {
             if (ws.readyState === 1) {
@@ -220,7 +224,7 @@ function Chat() {
                         type: WsCode.CreateChannel,
                         message: 'CreateChannel',
                         data: {
-                            target: params.user_id,
+                            group: params.group_id,
                         },
                     }),
                 );
@@ -248,9 +252,9 @@ function Chat() {
             ws.close();
             setStatus(0);
         };
-        GetUser({ user: select.substring(0, select.indexOf('/')) }).then((val) => {
+        GetGroup({ group: select.substring(0, select.indexOf('/')) }).then((val) => {
             if (val.code) {
-                setCurrentPeople(val.data as unknown as UserInfo);
+                setCurrentGroup(val.data as unknown as GroupInfo);
             }
         });
         scrollbottom();
@@ -268,10 +272,12 @@ function Chat() {
                     <Flex align="center" className={style.ChatHeaderNickName}>
                         <Avatar
                             size="large"
-                            icon={(!currentPeople || !currentPeople?.avatar) && <UserOutlined />}
-                            src={`${ServerUrl}${currentPeople?.avatar?.slice(1)}`}
+                            icon={
+                                (!currentGroup || !currentGroup?.group_avatar) && <UserOutlined />
+                            }
+                            src={`${ServerUrl}${currentGroup?.group_avatar?.slice(1)}`}
                         />
-                        {currentPeople && currentPeople.nickname}
+                        {currentGroup && currentGroup.group_name}
                     </Flex>
                     <Flex style={{ width: '100%' }} flex="1">
                         <span></span>
@@ -283,7 +289,8 @@ function Chat() {
                     </Flex>
                 </Flex>
                 <Flex flex={1} style={{ minHeight: '500px', height: '80%' }}>
-                    <ChatContainer type="user" ref={containerRef} list={list} />
+                    asd
+                    <ChatContainer type="group" ref={containerRef} list={list} />
                 </Flex>
                 <Flex className={style.ChatBoxBottom}>
                     <Flex className={style.ChatBoxFiles}>
@@ -352,4 +359,4 @@ function Chat() {
         </ChatContext.Provider>
     );
 }
-export default Chat;
+export default ChatGroup;

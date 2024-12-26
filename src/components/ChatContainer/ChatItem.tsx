@@ -13,6 +13,7 @@ import TextArea from 'antd/es/input/TextArea';
 interface ChatItemProps {
     item: ChatItemData;
     index: number;
+    type: 'user' | 'group';
 }
 interface MenuItemDataProps {
     target: string;
@@ -23,7 +24,7 @@ function MenuItemData({ target, index }: MenuItemDataProps) {
     const { onWidthDraw } = useContext(ChatContext);
     return (
         <Flex vertical>
-            <Content className={style.menuBtn} onClick={() => onWidthDraw?.(target, index)}>
+            <Content className={style.menuBtn} onClick={() => onWidthDraw?.({ target, index })}>
                 撤回
             </Content>
         </Flex>
@@ -31,8 +32,10 @@ function MenuItemData({ target, index }: MenuItemDataProps) {
 }
 
 const ChatItem = forwardRef<HTMLDivElement, ChatItemProps>((props, ref) => {
-    const { item, index, ...reset } = props;
+    const { item, index, type, ...reset } = props;
+    const { group_id } = useContext(ChatContext);
     const { username } = useUserStore();
+    const r_id = type === 'group' ? item.receive_id : group_id;
     const [_, setHover] = useState(false);
 
     return (
@@ -109,7 +112,7 @@ const ChatItem = forwardRef<HTMLDivElement, ChatItemProps>((props, ref) => {
                             <Popover
                                 trigger="hover"
                                 placement="left"
-                                content={<MenuItemData target={item.receive_id} index={index} />}
+                                content={<MenuItemData target={r_id!} index={index} />}
                             >
                                 <MoreOutlined className={style.menuBtn} />
                             </Popover>
