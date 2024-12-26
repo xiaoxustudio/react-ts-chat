@@ -1,12 +1,12 @@
 import React, { SyntheticEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import type { DropdownProps, MenuProps } from 'antd';
-import { Avatar, Dropdown, Flex, Menu, Tooltip } from 'antd';
+import { Avatar, Dropdown, Flex, Menu, Tag, Tooltip } from 'antd';
 import classname from 'classnames';
 import useUserStore from '@/store/useUserStore';
 import { Outlet, useNavigate } from 'react-router';
 import Lodding from '../Lodding';
 import { debounce } from 'radash';
-import { NonUndefined, UserFriend, UserInfo } from '@/types';
+import { NonUndefined, UserFriend, UserGroup, UserInfo } from '@/types';
 import SearchInput from './components/SearchInput';
 import { ItemType } from 'antd/es/menu/interface';
 import { SearchProps } from 'antd/es/input';
@@ -22,6 +22,8 @@ import styles from './user.module.less';
 import { LeftOutlined, RightOutlined, SettingOutlined, UserOutlined } from '@ant-design/icons';
 import siderBus from '@/event-bus/sider-bus';
 import { Content } from 'antd/es/layout/layout';
+import ModalGroup from './components/ModalGroup';
+import GetJoinGroup from '@/apis/group/get-join-group';
 
 interface MenuInfo {
     key: string;
@@ -40,6 +42,7 @@ const User: React.FC = withAuth(() => {
     const [collapsed, setCollapsed] = useState(false); // 收缩菜单
     const style_Content = classname(styles['container-content']);
     const computedOpen = useMemo(() => Object.keys(selectPeople ?? {}).length > 1, [selectPeople]); // 是否显示Modal
+    const [groupModal, setGroupModal] = useState(false);
     const [MenuList, setMenuList] = useState<MenuItem[]>([]);
     const DMenuOptionCK = (e: any) => {
         const _user = DMenuOption.items?.find((val) => val!.key == e.key);
@@ -53,6 +56,11 @@ const User: React.FC = withAuth(() => {
 
     const settingItems: DropdownProps['menu'] = {
         items: [
+            {
+                key: 'create-group',
+                label: '创建群组',
+                onClick: () => setGroupModal(!groupModal),
+            },
             {
                 key: 'user-info',
                 label: '个人信息',
@@ -114,23 +122,71 @@ const User: React.FC = withAuth(() => {
         setSelect(e.key);
     }, []); //eslint-disable-line
     const updateFriends = () => {
-        GetFriend({ user: username }).then((data) => {
-            if (data.code == RepCode.Success) {
-                const fdata = data.data as UserFriend[];
-                const pFdata = fdata.map((val) => ({
-                    key: `${val.friend_id}/chat`,
-                    label: val.friend_data.nickname,
-                    icon: (
-                        <Avatar
-                            className="bg-white"
-                            icon={!val.friend_data.avatar && <UserOutlined />}
-                            src={`${ServerUrl}${val.friend_data.avatar?.slice(1)}`}
-                        />
-                    ),
-                }));
-                setMenuList(pFdata);
-            }
-        });
+        let allList: any[] = [];
+        GetFriend({ user: username })
+            .then((data) => {
+                if (data.code == RepCode.Success) {
+                    const fdata = data.data as UserFriend[];
+                    const pFdata = fdata.map((val) => ({
+                        key: `${val.friend_id}/chat`,
+                        label: (
+                            <Flex>
+                                <Tooltip title={val.friend_data.nickname} placement="right">
+                                    <Content className="w-1/2 overflow-hidden text-ellipsis text-nowrap">
+                                        {val.friend_data.nickname}
+                                    </Content>
+                                </Tooltip>
+                                <Content>
+                                    <Tag className="text-xs" color="green">
+                                        好友
+                                    </Tag>
+                                </Content>
+                            </Flex>
+                        ),
+                        icon: (
+                            <Avatar
+                                className="bg-white"
+                                icon={!val.friend_data.avatar && <UserOutlined />}
+                                src={`${ServerUrl}${val.friend_data.avatar?.slice(1)}`}
+                            />
+                        ),
+                    }));
+                    allList = allList.concat(pFdata);
+                }
+            })
+            .then(() =>
+                GetJoinGroup({ user: username }).then((data) => {
+                    if (data.code == RepCode.Success) {
+                        const fdata = data.data as UserGroup[];
+                        const pFdata = fdata.map((val) => ({
+                            key: `${val.group_id}/chat`,
+                            label: (
+                                <Flex>
+                                    <Tooltip title={val.group_data.group_name} placement="right">
+                                        <Content className="w-1/2 overflow-hidden text-ellipsis text-nowrap">
+                                            {val.group_data.group_name}
+                                        </Content>
+                                    </Tooltip>
+                                    <Content>
+                                        <Tag className="text-xs" color="blue">
+                                            群组
+                                        </Tag>
+                                    </Content>
+                                </Flex>
+                            ),
+                            icon: (
+                                <Avatar
+                                    className="bg-white"
+                                    icon={!val.group_data.group_avatar && <UserOutlined />}
+                                    src={`${ServerUrl}${val.group_data.group_avatar?.slice(1)}`}
+                                />
+                            ),
+                        }));
+                        allList = allList.concat(pFdata);
+                        setMenuList(allList);
+                    }
+                }),
+            );
     };
     const onOKHandle = () => {
         setSelectPeople(undefined);
@@ -148,6 +204,7 @@ const User: React.FC = withAuth(() => {
         updateSider();
         siderBus.on('updateSider', () => updateSider());
     }, []); //eslint-disable-line
+
     return (
         <>
             <Flex className={styles['container-flex']}>
@@ -234,6 +291,7 @@ const User: React.FC = withAuth(() => {
                 onOk={onOKHandle}
                 emitOpen={emitOpen}
             />
+            <ModalGroup open={groupModal} onCancel={() => setGroupModal(false)} />
         </>
     );
 });
