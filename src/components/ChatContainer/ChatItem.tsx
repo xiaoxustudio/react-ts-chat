@@ -81,7 +81,7 @@ const ChatItem = forwardRef<HTMLDivElement, ChatItemProps>((props, ref) => {
                         className={`${style.Content} justify-between`}
                         justify={item.send_id === username ? 'right' : 'left'}
                     >
-                        <Content>{''}</Content>
+                        {item.send_id === username && <Content>{''}</Content>}
                         <TextArea
                             className={classNames(
                                 'inline-block !max-w-[640px] border-none hover:shadow-none',
@@ -91,6 +91,7 @@ const ChatItem = forwardRef<HTMLDivElement, ChatItemProps>((props, ref) => {
                             autoSize
                             readOnly
                         ></TextArea>
+                        {item.send_id !== username && <Content>{''}</Content>}
                     </Flex>
                     {/* 附件 */}
                     <Flex justify={item.send_id === username ? 'right' : 'left'}>

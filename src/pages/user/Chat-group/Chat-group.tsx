@@ -29,6 +29,8 @@ import GetUser from '@/apis/user/get-user';
 import DelFriend from '@/apis/user/del-friend';
 import siderBus from '@/event-bus/sider-bus';
 import GetGroup from '@/apis/group/get-group';
+import ExitGroup from '@/apis/group/exit-group';
+import GetJoinGroup from '@/apis/group/get-join-group';
 
 interface PlusFilesProp {
     action: string;
@@ -75,6 +77,8 @@ function PlusFiles({ action, onChange, beforeUpload, fileList }: PlusFilesProp) 
 
 function ChatGroup() {
     const navigate = useNavigate();
+    const params = useParams();
+    const containerRef = useRef<HTMLDivElement | null>(null);
     const { username, token } = useUserStore();
     const { sendWrapper } = useSend();
     const { setStatus, status: Status } = useServerStatus();
@@ -82,24 +86,28 @@ function ChatGroup() {
     const [websocketInstance, setWS] = useState<WebSocket | null>();
     const [content, setContent] = useState('');
     const [list, setList] = useState<any[]>([]);
-    const params = useParams();
-    const containerRef = useRef<HTMLDivElement | null>(null);
     const [fileList, setFileList] = useState<UploadFile[]>([]);
     const [currentGroup, setCurrentGroup] = useState(null as unknown as GroupInfo);
     const items: MenuProps['items'] = [
         {
             key: '1',
-            label: '删除群组',
+            label: (currentGroup?.group_master || '') === username ? '删除群组' : '退出群聊',
             onClick() {
-                // DelFriend({ user: currentGroup.username }).then((data) => {
-                //     if (data.code) {
-                //         message.success('删除成功！');
-                //         navigate('/user', { replace: true });
-                //         siderBus.emit('updateSider');
-                //     } else {
-                //         message.error(`删除失败：${data.msg}`);
-                //     }
-                // });
+                const isMaster = currentGroup.group_master === username;
+                if (isMaster) {
+                    // 删除群聊
+                    message.info('未开发！');
+                } else {
+                    ExitGroup({ group: currentGroup.group_id }).then((data) => {
+                        if (data.code) {
+                            message.success(data.msg);
+                            navigate('/user', { replace: true });
+                            siderBus.emit('updateSider');
+                        } else {
+                            message.error(data.msg);
+                        }
+                    });
+                }
             },
         },
     ];
@@ -193,6 +201,14 @@ function ChatGroup() {
     );
 
     useEffect(() => {
+        // 是否加入了群聊
+        GetJoinGroup({ user: username }).then((data) => {
+            if (data.code) {
+                const group = data.data as GroupInfo[];
+                if (group.find((val) => val.group_id === currentGroup.group_id)) return;
+            }
+            navigate('/user', { replace: true });
+        });
         let intervalNum: NodeJS.Timeout | number = -1;
         if (websocketInstance instanceof WebSocket) {
             websocketInstance.close();
@@ -255,7 +271,9 @@ function ChatGroup() {
         GetGroup({ group: select.substring(0, select.indexOf('/')) }).then((val) => {
             if (val.code) {
                 setCurrentGroup(val.data as unknown as GroupInfo);
+                return;
             }
+            navigate('/user', { replace: true });
         });
         scrollbottom();
         return () => {

@@ -19,7 +19,7 @@ import { AllowFileType, ServerUrl, WsCode, wsUrl } from '@/consts';
 import useSend from '@/hook/useSend';
 import useServerStatus from '@/store/useServer';
 import { useNavigate, useParams } from 'react-router-dom';
-import { UserInfo, WsData } from '@/types';
+import { UserFriend, UserInfo, WsData } from '@/types';
 import ChatContext from '@/components/ChatContainer/utils/ChatContext';
 import { MenuOutlined, PlusSquareOutlined, SendOutlined, UserOutlined } from '@ant-design/icons';
 import { FileType, getBase64 } from '@/utils';
@@ -28,6 +28,7 @@ import useUserChat from '@/store/useUserChat';
 import GetUser from '@/apis/user/get-user';
 import DelFriend from '@/apis/user/del-friend';
 import siderBus from '@/event-bus/sider-bus';
+import GetFriend from '@/apis/user/get-friend';
 
 interface PlusFilesProp {
     action: string;
@@ -189,6 +190,15 @@ function Chat() {
     const ChatInject = useMemo(() => ({ onWidthDraw }), [onWidthDraw]);
 
     useEffect(() => {
+        // 是否有该好友
+        GetFriend({ user: username }).then((data) => {
+            if (data.code) {
+                const users = data.data as UserFriend[];
+                if (users.find((val) => val.friend_data.username === currentPeople.username))
+                    return;
+            }
+            navigate('/user', { replace: true });
+        });
         let intervalNum: NodeJS.Timeout | number = -1;
         if (websocketInstance instanceof WebSocket) {
             websocketInstance.close();

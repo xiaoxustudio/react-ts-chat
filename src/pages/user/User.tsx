@@ -175,7 +175,6 @@ const User: React.FC = withAuth(() => {
     const emitOpen = () => setSelectMenuItem(undefined);
     // 左侧菜单路由跳转
     const onClick = useCallback((e: MenuInfo) => {
-        console.log('MenuInfo', e);
         navigate(`/user/${e.key}`);
         setSelect(e.key);
     }, []); //eslint-disable-line
