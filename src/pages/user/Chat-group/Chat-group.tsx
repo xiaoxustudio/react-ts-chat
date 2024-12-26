@@ -15,22 +15,26 @@ import {
 import ChatContainer from '@/components/ChatContainer/ChatContainer';
 import useUserStore from '@/store/useUserStore';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { AllowFileType, ServerUrl, WsCode, wsUrl, wsUrlGroup } from '@/consts';
+import { AllowFileType, ServerUrl, WsCode, wsUrlGroup } from '@/consts';
 import useSend from '@/hook/useSend';
 import useServerStatus from '@/store/useServer';
 import { useNavigate, useParams } from 'react-router-dom';
 import { GroupInfo, WsData } from '@/types';
 import ChatContext from '@/components/ChatContainer/utils/ChatContext';
-import { MenuOutlined, PlusSquareOutlined, SendOutlined, UserOutlined } from '@ant-design/icons';
+import {
+    LeftOutlined,
+    MenuOutlined,
+    PlusSquareOutlined,
+    SendOutlined,
+    UserOutlined,
+} from '@ant-design/icons';
 import { FileType, getBase64 } from '@/utils';
-import style from './index.module.less';
 import useUserChat from '@/store/useUserChat';
-import GetUser from '@/apis/user/get-user';
-import DelFriend from '@/apis/user/del-friend';
 import siderBus from '@/event-bus/sider-bus';
 import GetGroup from '@/apis/group/get-group';
 import ExitGroup from '@/apis/group/exit-group';
 import GetJoinGroup from '@/apis/group/get-join-group';
+import style from './index.module.less';
 
 interface PlusFilesProp {
     action: string;
@@ -201,14 +205,24 @@ function ChatGroup() {
     );
 
     useEffect(() => {
-        // 是否加入了群聊
-        GetJoinGroup({ user: username }).then((data) => {
-            if (data.code) {
-                const group = data.data as GroupInfo[];
-                if (group.find((val) => val.group_id === currentGroup.group_id)) return;
+        GetGroup({ group: select.substring(0, select.indexOf('/')) }).then((val) => {
+            let info = null as unknown as GroupInfo;
+            if (val.code) {
+                info = val.data as unknown as GroupInfo;
+                setCurrentGroup(info);
+                return;
             }
             navigate('/user', { replace: true });
+            // 是否加入了群聊
+            GetJoinGroup({ user: username }).then((data) => {
+                if (data.code) {
+                    const group = data.data as GroupInfo[];
+                    if (group.find((val) => val.group_id === info.group_id)) return;
+                }
+                navigate('/user', { replace: true });
+            });
         });
+
         let intervalNum: NodeJS.Timeout | number = -1;
         if (websocketInstance instanceof WebSocket) {
             websocketInstance.close();
@@ -268,13 +282,6 @@ function ChatGroup() {
             ws.close();
             setStatus(0);
         };
-        GetGroup({ group: select.substring(0, select.indexOf('/')) }).then((val) => {
-            if (val.code) {
-                setCurrentGroup(val.data as unknown as GroupInfo);
-                return;
-            }
-            navigate('/user', { replace: true });
-        });
         scrollbottom();
         return () => {
             ws.close();
@@ -287,6 +294,12 @@ function ChatGroup() {
         <ChatContext.Provider value={ChatInject}>
             <Flex className={style.ChatBox} vertical>
                 <Flex className={style.ChatHeader}>
+                    <Flex>
+                        <LeftOutlined
+                            onClick={() => navigate('/user', { replace: true })}
+                            className="my-[25%] cursor-pointer select-none rounded-full p-2 transition-colors duration-200 hover:bg-gray-100"
+                        />
+                    </Flex>
                     <Flex align="center" className={style.ChatHeaderNickName}>
                         <Avatar
                             size="large"

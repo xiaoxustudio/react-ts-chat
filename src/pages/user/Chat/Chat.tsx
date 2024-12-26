@@ -21,14 +21,20 @@ import useServerStatus from '@/store/useServer';
 import { useNavigate, useParams } from 'react-router-dom';
 import { UserFriend, UserInfo, WsData } from '@/types';
 import ChatContext from '@/components/ChatContainer/utils/ChatContext';
-import { MenuOutlined, PlusSquareOutlined, SendOutlined, UserOutlined } from '@ant-design/icons';
+import {
+    LeftOutlined,
+    MenuOutlined,
+    PlusSquareOutlined,
+    SendOutlined,
+    UserOutlined,
+} from '@ant-design/icons';
 import { FileType, getBase64 } from '@/utils';
-import style from './index.module.less';
 import useUserChat from '@/store/useUserChat';
 import GetUser from '@/apis/user/get-user';
 import DelFriend from '@/apis/user/del-friend';
 import siderBus from '@/event-bus/sider-bus';
 import GetFriend from '@/apis/user/get-friend';
+import style from './index.module.less';
 
 interface PlusFilesProp {
     action: string;
@@ -190,14 +196,20 @@ function Chat() {
     const ChatInject = useMemo(() => ({ onWidthDraw }), [onWidthDraw]);
 
     useEffect(() => {
-        // 是否有该好友
-        GetFriend({ user: username }).then((data) => {
-            if (data.code) {
-                const users = data.data as UserFriend[];
-                if (users.find((val) => val.friend_data.username === currentPeople.username))
-                    return;
+        GetUser({ user: select.substring(0, select.indexOf('/')) }).then((val) => {
+            let info: UserInfo = null as unknown as UserInfo;
+            if (val.code) {
+                info = val.data as unknown as UserInfo;
+                setCurrentPeople(info);
             }
-            navigate('/user', { replace: true });
+            // 是否有该好友
+            GetFriend({ user: username }).then((data) => {
+                if (data.code) {
+                    const users = data.data as UserFriend[];
+                    if (users.find((val) => val.friend_data.username === info.username)) return;
+                }
+                navigate('/user', { replace: true });
+            });
         });
         let intervalNum: NodeJS.Timeout | number = -1;
         if (websocketInstance instanceof WebSocket) {
@@ -258,11 +270,6 @@ function Chat() {
             ws.close();
             setStatus(0);
         };
-        GetUser({ user: select.substring(0, select.indexOf('/')) }).then((val) => {
-            if (val.code) {
-                setCurrentPeople(val.data as unknown as UserInfo);
-            }
-        });
         scrollbottom();
         return () => {
             ws.close();
@@ -275,6 +282,12 @@ function Chat() {
         <ChatContext.Provider value={ChatInject}>
             <Flex className={style.ChatBox} vertical>
                 <Flex className={style.ChatHeader}>
+                    <Flex>
+                        <LeftOutlined
+                            onClick={() => navigate('/user', { replace: true })}
+                            className="my-[25%] cursor-pointer select-none rounded-full p-2 transition-colors duration-200 hover:bg-gray-100"
+                        />
+                    </Flex>
                     <Flex align="center" className={style.ChatHeaderNickName}>
                         <Avatar
                             size="large"

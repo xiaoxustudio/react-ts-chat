@@ -188,11 +188,11 @@ const User: React.FC = withAuth(() => {
                         key: `${val.friend_id}/chat`,
                         label: (
                             <Flex>
-                                <Tooltip title={val.friend_data.nickname} placement="right">
-                                    <Content className="w-1/2 overflow-hidden text-ellipsis text-nowrap">
-                                        {val.friend_data.nickname}
-                                    </Content>
-                                </Tooltip>
+                                <Content
+                                    className={`w-1/2 overflow-hidden text-ellipsis text-nowrap`}
+                                >
+                                    {val.friend_data.nickname}
+                                </Content>
                                 <Content>
                                     <Tag className="text-xs" color="green">
                                         好友
@@ -219,16 +219,18 @@ const User: React.FC = withAuth(() => {
                             key: `${val.group_id}/group`,
                             label: (
                                 <Flex>
-                                    <Tooltip title={val.group_data.group_name} placement="right">
-                                        <Content className="w-1/2 overflow-hidden text-ellipsis text-nowrap">
-                                            {val.group_data.group_name}
-                                        </Content>
-                                    </Tooltip>
-                                    <Content>
-                                        <Tag className="text-xs" color="blue">
-                                            群组
-                                        </Tag>
+                                    <Content
+                                        className={`w-1/2 overflow-hidden text-ellipsis text-nowrap ${collapsed ? 'text-white' : 'text-black'}`}
+                                    >
+                                        {val.group_data.group_name}
                                     </Content>
+                                    {!collapsed && (
+                                        <Content>
+                                            <Tag className="text-xs" color="blue">
+                                                群组
+                                            </Tag>
+                                        </Content>
+                                    )}
                                 </Flex>
                             ),
                             icon: (
