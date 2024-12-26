@@ -6,11 +6,11 @@ import useUserStore from '@/store/useUserStore';
 import { Outlet, useNavigate } from 'react-router';
 import Lodding from '../Lodding';
 import { debounce } from 'radash';
-import { NonUndefined, UserFriend, UserGroup, UserInfo } from '@/types';
+import { GroupInfo, NonUndefined, UserFriend, UserGroup, UserInfo } from '@/types';
 import SearchInput from './components/SearchInput';
 import { ItemType } from 'antd/es/menu/interface';
 import { SearchProps } from 'antd/es/input';
-import ModalUser from './components/ModalUser';
+import ModalAddState from './components/ModalAddState';
 import { MenuItem, items } from './consts/inex';
 import withAuth from '@/hook/useWithAuth';
 import { RepCode, ServerUrl } from '@/consts';
@@ -18,12 +18,13 @@ import useUserChat from '@/store/useUserChat';
 import classNames from 'classnames';
 import GetFriend from '@/apis/user/get-friend';
 import SearchUser from '@/apis/user/search-user';
-import styles from './user.module.less';
 import { LeftOutlined, RightOutlined, SettingOutlined, UserOutlined } from '@ant-design/icons';
 import siderBus from '@/event-bus/sider-bus';
 import { Content } from 'antd/es/layout/layout';
-import ModalGroup from './components/ModalGroup';
 import GetJoinGroup from '@/apis/group/get-join-group';
+import SearchGroup from '@/apis/group/search-group';
+import ModalCreateGroup from './components/ModalCreateGroup';
+import styles from './user.module.less';
 
 interface MenuInfo {
     key: string;
@@ -37,22 +38,33 @@ const User: React.FC = withAuth(() => {
     const { resetLogin } = useUserStore();
     const { nickname, username, data } = useUserStore();
     const { select, setSelect } = useUserChat();
-    const [selectPeople, setSelectPeople] = useState<ItemType | undefined>(); // 当前选择的联系人
+    const [SelectMenuItem, setSelectMenuItem] = useState<ItemType | undefined>(); // 当前选择的联系人
     const [isOpenShow, setIsOpenShow] = useState(false); // 是否可以显示下拉
     const [collapsed, setCollapsed] = useState(false); // 收缩菜单
     const style_Content = classname(styles['container-content']);
-    const computedOpen = useMemo(() => Object.keys(selectPeople ?? {}).length > 1, [selectPeople]); // 是否显示Modal
+    const computedOpen = useMemo(
+        () => Object.keys(SelectMenuItem ?? {}).length > 1,
+        [SelectMenuItem],
+    ); // 是否显示Modal
     const [groupModal, setGroupModal] = useState(false);
     const [MenuList, setMenuList] = useState<MenuItem[]>([]);
     const DMenuOptionCK = (e: any) => {
         const _user = DMenuOption.items?.find((val) => val!.key == e.key);
         setIsOpenShow(false);
-        setSelectPeople(_user);
+        setSelectMenuItem(_user);
     };
     const [DMenuOption, setDMenuOption] = useState<MenuProps>({
         items: [],
         onClick: DMenuOptionCK,
     });
+    const is_Group = useMemo(() => {
+        if (!DMenuOption.items) return false;
+        const div_index = DMenuOption.items.findIndex((val) => val?.type === 'divider');
+        const key_index = DMenuOption.items.findIndex(
+            (val) => val!.key === (SelectMenuItem?.key ?? ''),
+        );
+        return key_index > div_index;
+    }, [DMenuOption.items, SelectMenuItem?.key]);
 
     const settingItems: DropdownProps['menu'] = {
         items: [
@@ -83,39 +95,84 @@ const User: React.FC = withAuth(() => {
     const getSearch = debounce<Parameters<OnSearchType>>({ delay: 800 }, (e) => {
         setIsOpenShow(false);
         const nickname = e.target.value ?? '';
-        if (nickname.length < 2) {
+        if (nickname.length <= 0) {
             return;
         }
-        SearchUser({ nickname }).then((data) => {
-            if (data.code == RepCode.Success) {
-                const op = data.data as UserInfo[];
-                if (Array.isArray(op) && op.length > 0) {
-                    const _cache = op.map(
-                        (val) =>
-                            ({
-                                key: val.username,
-                                label: val.nickname,
-                                icon: (
-                                    <Avatar
-                                        className="-ml-2 bg-white"
-                                        size="small"
-                                        icon={!val.avatar && <UserOutlined />}
-                                        src={`${ServerUrl}${val.avatar?.slice(1)}`}
-                                    />
-                                ),
-                            }) as ItemType,
-                    ) as ItemType[];
+        let allList: ItemType[] = [];
+        SearchUser({ nickname })
+            .then((data) => {
+                if (data.code == RepCode.Success) {
+                    const op = data.data as UserInfo[];
+                    if (Array.isArray(op) && op.length > 0) {
+                        const _cache = op.map(
+                            (val) =>
+                                ({
+                                    key: val.username,
+                                    label: (
+                                        <Flex>
+                                            <Content className="w-full overflow-hidden text-ellipsis text-nowrap">
+                                                {val.nickname}
+                                            </Content>
+                                        </Flex>
+                                    ),
+                                    icon: (
+                                        <Avatar
+                                            className="-ml-2 bg-white"
+                                            size="small"
+                                            icon={!val.avatar && <UserOutlined />}
+                                            src={`${ServerUrl}${val.avatar?.slice(1)}`}
+                                        />
+                                    ),
+                                }) as ItemType,
+                        ) as ItemType[];
+                        allList = _cache;
+                    }
+                    allList.push({
+                        key: Math.random().toString(32).slice(2, 12).padEnd(9, '0'),
+                        type: 'divider',
+                    });
+                }
+            })
+            .then(() => {
+                SearchGroup({ group: nickname }).then((data) => {
+                    if (data.code == RepCode.Success) {
+                        const op = data.data as GroupInfo[];
+                        if (Array.isArray(op) && op.length > 0) {
+                            const _cache = op.map(
+                                (val) =>
+                                    ({
+                                        key: val.group_id,
+                                        label: (
+                                            <Flex className="w-1/2 gap-2 overflow-hidden text-ellipsis text-nowrap">
+                                                {val.group_name}
+                                                <Tag className="text-xs" color="blue">
+                                                    群组
+                                                </Tag>
+                                            </Flex>
+                                        ),
+                                        icon: (
+                                            <Avatar
+                                                className="-ml-2 bg-white"
+                                                size="small"
+                                                icon={!val.group_avatar && <UserOutlined />}
+                                                src={`${ServerUrl}${val.group_avatar?.slice(1)}`}
+                                            />
+                                        ),
+                                    }) as ItemType,
+                            ) as ItemType[];
+                            allList = [...allList, ..._cache];
+                        }
+                    }
                     setDMenuOption((val) => {
-                        val.items = _cache;
+                        val.items = allList;
                         return val;
                     });
-                    setIsOpenShow(true);
-                }
-            }
-        });
+                    allList.length > 1 && setIsOpenShow(true);
+                });
+            });
     });
     // 切换Modal方法
-    const emitOpen = () => setSelectPeople(undefined);
+    const emitOpen = () => setSelectMenuItem(undefined);
     // 左侧菜单路由跳转
     const onClick = useCallback((e: MenuInfo) => {
         console.log('MenuInfo', e);
@@ -123,7 +180,7 @@ const User: React.FC = withAuth(() => {
         setSelect(e.key);
     }, []); //eslint-disable-line
     const updateFriends = () => {
-        let allList: any[] = [];
+        let allList: ItemType[] = [];
         GetFriend({ user: username })
             .then((data) => {
                 if (data.code == RepCode.Success) {
@@ -184,13 +241,13 @@ const User: React.FC = withAuth(() => {
                             ),
                         }));
                         allList = allList.concat(pFdata);
-                        setMenuList(allList);
                     }
+                    setMenuList(allList);
                 }),
             );
     };
     const onOKHandle = () => {
-        setSelectPeople(undefined);
+        setSelectMenuItem(undefined);
     };
     const toggleCollapsed = () => {
         setCollapsed(!collapsed);
@@ -286,13 +343,14 @@ const User: React.FC = withAuth(() => {
                     </div>
                 </div>
             </Flex>
-            <ModalUser
+            <ModalAddState
                 open={computedOpen}
-                selectPeople={selectPeople}
+                selectMenuItem={SelectMenuItem}
                 onOk={onOKHandle}
                 emitOpen={emitOpen}
+                isGroup={is_Group}
             />
-            <ModalGroup open={groupModal} onCancel={() => setGroupModal(false)} />
+            <ModalCreateGroup open={groupModal} onCancel={() => setGroupModal(false)} />
         </>
     );
 });

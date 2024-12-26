@@ -15,7 +15,7 @@ import { UploadChangeParam, UploadFile } from 'antd/es/upload';
 import { message } from 'antd';
 import siderBus from '@/event-bus/sider-bus';
 
-const ModalGroup: FC<ModalFuncProps> = (prop) => {
+const ModalCreateGroup: FC<ModalFuncProps> = (prop) => {
     const { token } = useUserStore();
     const [groupInfo, setGroupInfo] = useState<CreateGroupProp>({
         group_avatar: '',
@@ -93,4 +93,4 @@ const ModalGroup: FC<ModalFuncProps> = (prop) => {
         </Modal>
     );
 };
-export default ModalGroup;
+export default ModalCreateGroup;

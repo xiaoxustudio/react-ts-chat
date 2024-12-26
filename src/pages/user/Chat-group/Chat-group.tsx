@@ -289,7 +289,6 @@ function ChatGroup() {
                     </Flex>
                 </Flex>
                 <Flex flex={1} style={{ minHeight: '500px', height: '80%' }}>
-                    asd
                     <ChatContainer type="group" ref={containerRef} list={list} />
                 </Flex>
                 <Flex className={style.ChatBoxBottom}>

@@ -83,7 +83,10 @@ const ChatItem = forwardRef<HTMLDivElement, ChatItemProps>((props, ref) => {
                     >
                         <Content>{''}</Content>
                         <TextArea
-                            className="inline-block !max-w-[640px] border-none text-right hover:shadow-none"
+                            className={classNames(
+                                'inline-block !max-w-[640px] border-none hover:shadow-none',
+                                { 'text-right': item.send_id === username },
+                            )}
                             value={item.content}
                             autoSize
                             readOnly
