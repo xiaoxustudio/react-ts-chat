@@ -308,7 +308,7 @@ const User: React.FC = withAuth(() => {
                                 icon={!data.avatar && <UserOutlined />}
                                 src={`${ServerUrl}${data.avatar?.slice(1)}`}
                             />
-                            <Content className="text-center">
+                            <Content className="overflow-hidden text-ellipsis text-nowrap text-center">
                                 {collapsed ? (
                                     <Tooltip title={nickname} placement="right">
                                         {nickname.substring(0, 2)}

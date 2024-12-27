@@ -4,10 +4,15 @@ import useUserStore from '@/store/useUserStore';
 import { UserInfo } from '@/types';
 import { Button, Flex, Image, Tag, Upload, message, Input } from 'antd';
 import { useEffect } from 'react';
-import style from './index.module.less';
 import { Content } from 'antd/es/layout/layout';
+import { LeftOutlined } from '@ant-design/icons';
+import { useNavigate } from 'react-router';
+import useUserChat from '@/store/useUserChat';
+import style from './index.module.less';
 
 function UserInfoComp() {
+    const navigate = useNavigate();
+    const { setSelect } = useUserChat();
     const { username, setData, data, token } = useUserStore();
     const updateInfo = () =>
         GetUser({ user: username }).then((data) => {
@@ -23,6 +28,15 @@ function UserInfoComp() {
     return (
         <>
             <Flex className="h-full w-full items-center pt-5" gap="middle" vertical>
+                <Flex className="w-full">
+                    <LeftOutlined
+                        className="mx-5 cursor-pointer select-none rounded-full p-2 transition-colors duration-200 hover:bg-gray-100"
+                        onClick={() => {
+                            setSelect('');
+                            navigate('/user', { replace: true });
+                        }}
+                    />
+                </Flex>
                 <Flex align="center">
                     <Content className="text-nowrap">头像：</Content>
                     <Flex style={{ alignItems: 'center', gap: `5px` }}>

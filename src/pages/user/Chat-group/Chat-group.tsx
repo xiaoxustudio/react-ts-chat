@@ -282,6 +282,15 @@ function ChatGroup() {
     }, [drawerState]); //eslint-disable-line
 
     useEffect(() => {
+        // 是否加入了群聊
+        GetJoinGroup({ user: username }).then((data) => {
+            if (data.code) {
+                const group = data.data as GroupInfo[];
+                if (group.find((val) => val.group_id === currentGroup.group_id)) return;
+            }
+            navigate('/user', { replace: true });
+            siderBus.emit('updateSider');
+        });
         GetGroup({ group: select.substring(0, select.indexOf('/')) }).then((val) => {
             let info = null as unknown as GroupInfo;
             if (val.code) {
@@ -290,14 +299,7 @@ function ChatGroup() {
                 return;
             }
             navigate('/user', { replace: true });
-            // 是否加入了群聊
-            GetJoinGroup({ user: username }).then((data) => {
-                if (data.code) {
-                    const group = data.data as GroupInfo[];
-                    if (group.find((val) => val.group_id === info.group_id)) return;
-                }
-                navigate('/user', { replace: true });
-            });
+            siderBus.emit('updateSider');
         });
         let intervalNum: NodeJS.Timeout | number = -1;
         if (websocketInstance instanceof WebSocket) {

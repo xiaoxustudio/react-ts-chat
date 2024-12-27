@@ -196,20 +196,22 @@ function Chat() {
     const ChatInject = useMemo(() => ({ onWidthDraw }), [onWidthDraw]);
 
     useEffect(() => {
+        // 是否有该好友
+        GetFriend({ user: username }).then((data) => {
+            if (data.code) {
+                const users = data.data as UserFriend[];
+                if (users.find((val) => val.friend_data.username === currentPeople.username))
+                    return;
+            }
+            navigate('/user', { replace: true });
+            siderBus.emit('updateSider');
+        });
         GetUser({ user: select.substring(0, select.indexOf('/')) }).then((val) => {
             let info: UserInfo = null as unknown as UserInfo;
             if (val.code) {
                 info = val.data as unknown as UserInfo;
                 setCurrentPeople(info);
             }
-            // 是否有该好友
-            GetFriend({ user: username }).then((data) => {
-                if (data.code) {
-                    const users = data.data as UserFriend[];
-                    if (users.find((val) => val.friend_data.username === info.username)) return;
-                }
-                navigate('/user', { replace: true });
-            });
         });
         let intervalNum: NodeJS.Timeout | number = -1;
         if (websocketInstance instanceof WebSocket) {
