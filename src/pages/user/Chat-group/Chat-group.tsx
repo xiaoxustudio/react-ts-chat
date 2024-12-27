@@ -45,6 +45,7 @@ import Title from 'antd/es/typography/Title';
 import { Content } from 'antd/es/layout/layout';
 import SetMemberAuth from '@/apis/group/set-member-auth';
 import { ItemType } from 'antd/es/menu/interface';
+import KickMember from '@/apis/group/kick-member';
 
 interface PlusFilesProp {
     action: string;
@@ -139,7 +140,17 @@ function ChatGroup() {
                     key: 'kick-member',
                     label: '踢出成员',
                     onClick() {
-                        message.info('未开发');
+                        KickMember({
+                            group: currentGroup.group_id,
+                            user: val.user_id,
+                        }).then((data) => {
+                            if (data.code) {
+                                message.success(data.msg);
+                                updateMembers();
+                            } else {
+                                message.error(data.msg);
+                            }
+                        });
                     },
                 });
         }
