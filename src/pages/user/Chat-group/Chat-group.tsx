@@ -46,6 +46,7 @@ import { Content } from 'antd/es/layout/layout';
 import SetMemberAuth from '@/apis/group/set-member-auth';
 import { ItemType } from 'antd/es/menu/interface';
 import KickMember from '@/apis/group/kick-member';
+import { GroupChatItemData } from '@/components/ChatContainer/type';
 
 interface PlusFilesProp {
     action: string;
@@ -101,7 +102,7 @@ function ChatGroup() {
     const [websocketInstance, setWS] = useState<WebSocket | null>();
     const [content, setContent] = useState('');
     const [drawerState, setDrawerState] = useState(false);
-    const [list, setList] = useState<any[]>([]);
+    const [list, setList] = useState<GroupChatItemData[]>([]);
     const [fileList, setFileList] = useState<UploadFile[]>([]);
     const [currentMembers, setCurrentMembers] = useState<GroupMember[]>([]);
     const [currentGroup, setCurrentGroup] = useState(null as unknown as GroupInfo);
@@ -282,24 +283,26 @@ function ChatGroup() {
     }, [drawerState]); //eslint-disable-line
 
     useEffect(() => {
-        // 是否加入了群聊
-        GetJoinGroup({ user: username }).then((data) => {
-            if (data.code) {
-                const group = data.data as GroupInfo[];
-                if (group.find((val) => val.group_id === currentGroup.group_id)) return;
-            }
-            navigate('/user', { replace: true });
-            siderBus.emit('updateSider');
-        });
         GetGroup({ group: select.substring(0, select.indexOf('/')) }).then((val) => {
             let info = null as unknown as GroupInfo;
             if (val.code) {
                 info = val.data as unknown as GroupInfo;
                 setCurrentGroup(info);
+            } else {
+                navigate('/user', { replace: true });
+                siderBus.emit('updateSider');
                 return;
             }
-            navigate('/user', { replace: true });
-            siderBus.emit('updateSider');
+            // 在api中是因为 确保 currentGroup 有值
+            // 是否加入了群聊
+            GetJoinGroup({ user: username }).then((data) => {
+                if (data.code) {
+                    const group = data.data as GroupInfo[];
+                    if (group.find((val) => val.group_id === info.group_id)) return;
+                }
+                navigate('/user', { replace: true });
+                siderBus.emit('updateSider');
+            });
         });
         let intervalNum: NodeJS.Timeout | number = -1;
         if (websocketInstance instanceof WebSocket) {
@@ -464,6 +467,7 @@ function ChatGroup() {
                         </Flex>
                     </div>
                 </Flex>
+                {/* 侧栏 */}
                 <Drawer
                     placement="right"
                     closable={false}
@@ -505,6 +509,7 @@ function ChatGroup() {
                                                 </Content>
                                             </Tooltip>
                                             <Content>
+                                                {/* 标识 */}
                                                 {val.auth == 2 && (
                                                     <Tag bordered={false} color="orange">
                                                         群主

@@ -1,4 +1,4 @@
-import { Avatar, Flex, Image, Popover } from 'antd';
+import { Avatar, Flex, Image, Popover, Tag } from 'antd';
 import classNames from 'classnames';
 import { forwardRef, useContext, useState } from 'react';
 import { ServerUrl } from '@/consts';
@@ -6,9 +6,9 @@ import { Content } from 'antd/es/layout/layout';
 import useUserStore from '@/store/useUserStore';
 import { MoreOutlined, UserOutlined } from '@ant-design/icons';
 import ChatContext from './utils/ChatContext';
-import { ChatItemType, type ChatItemData } from './type';
-import style from './chat-item.module.less';
+import { ChatItemType, GroupChatItemData, type ChatItemData } from './type';
 import TextArea from 'antd/es/input/TextArea';
+import style from './chat-item.module.less';
 
 interface ChatItemProps {
     item: ChatItemData;
@@ -60,6 +60,23 @@ const ChatItem = forwardRef<HTMLDivElement, ChatItemProps>((props, ref) => {
                         className={style.NickName}
                         justify={item.send_id === username ? 'right' : 'left'}
                     >
+                        {type === 'group' && item.send_id === username && (
+                            <>
+                                {(item as GroupChatItemData).send_data.auth == 2 && (
+                                    <Tag bordered={false} color="orange">
+                                        群主
+                                    </Tag>
+                                )}
+                                {(item as GroupChatItemData).send_data.auth == 1 && (
+                                    <Tag bordered={false} color="green">
+                                        管理
+                                    </Tag>
+                                )}
+                                {(item as GroupChatItemData).send_data.auth == 0 && (
+                                    <Tag bordered={false}>成员</Tag>
+                                )}
+                            </>
+                        )}
                         {item.send_id !== username && (
                             <Avatar
                                 size="large"
@@ -74,6 +91,23 @@ const ChatItem = forwardRef<HTMLDivElement, ChatItemProps>((props, ref) => {
                                 icon={!item.avatar && <UserOutlined />}
                                 src={`${ServerUrl}${item.avatar?.slice(1)}`}
                             />
+                        )}
+                        {type === 'group' && item.send_id !== username && (
+                            <>
+                                {(item as GroupChatItemData).send_data.auth == 2 && (
+                                    <Tag bordered={false} color="orange">
+                                        群主
+                                    </Tag>
+                                )}
+                                {(item as GroupChatItemData).send_data.auth == 1 && (
+                                    <Tag bordered={false} color="green">
+                                        管理
+                                    </Tag>
+                                )}
+                                {(item as GroupChatItemData).send_data.auth == 0 && (
+                                    <Tag bordered={false}>成员</Tag>
+                                )}
+                            </>
                         )}
                     </Flex>
                     {/* 内容 */}
