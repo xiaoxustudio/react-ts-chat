@@ -4,7 +4,7 @@ import { Dropdown, Flex, Menu, Tag, Tooltip } from 'antd';
 import classname from 'classnames';
 import useUserStore from '@/store/useUserStore';
 import { Outlet, useNavigate } from 'react-router';
-import Lodding from '../Lodding';
+import Lodding from '../Loading';
 import { debounce } from 'radash';
 import { GroupInfo, NonUndefined, UserFriend, UserGroup, UserInfo } from '@/types';
 import SearchInput from './components/SearchInput';
@@ -58,6 +58,8 @@ const User: React.FC = withAuth(() => {
         items: [],
         onClick: DMenuOptionCK,
     });
+
+    // 通过选择项判断是否选择的Group
     const is_Group = useMemo(() => {
         if (!DMenuOption.items) return false;
         const div_index = DMenuOption.items.findIndex((val) => val?.type === 'divider');
@@ -158,13 +160,16 @@ const User: React.FC = withAuth(() => {
                 });
             });
     });
+
     // 切换Modal方法
     const emitOpen = () => setSelectMenuItem(undefined);
+
     // 左侧菜单路由跳转
     const onClick = useCallback((e: MenuInfo) => {
         navigate(`/user/${e.key}`);
         setSelect(e.key);
     }, []); //eslint-disable-line
+
     const updateFriends = () => {
         let allList: ItemType[] = [];
         GetFriend({ user: username })
@@ -222,9 +227,11 @@ const User: React.FC = withAuth(() => {
                 }),
             );
     };
+
     const onOKHandle = () => {
         setSelectMenuItem(undefined);
     };
+
     const toggleCollapsed = () => {
         setCollapsed(!collapsed);
     };
@@ -234,9 +241,14 @@ const User: React.FC = withAuth(() => {
         updateFriends();
     };
 
+    const openModalAddState = ({ key }: { key: string }) => {
+        console.log('openModalAddState', key);
+    };
+
     useEffect(() => {
         updateSider();
         siderBus.on('updateSider', () => updateSider());
+        siderBus.on('openModalAddState', (e) => e && openModalAddState(e));
     }, []); //eslint-disable-line
 
     return (
@@ -293,7 +305,6 @@ const User: React.FC = withAuth(() => {
                         items={MenuList}
                         selectedKeys={[select]}
                         inlineCollapsed={collapsed}
-                        forceSubMenuRender
                     />
                     {/* 底部设置 */}
                     <Flex style={{ padding: '5px 0 20px 0' }}>

@@ -41,6 +41,7 @@ import KickMember from '@/apis/group/kick-member';
 import { GroupChatItemData } from '@/components/ChatContainer/type';
 import AvatarIcon from '@/components/AvatarIcon/AvatarIcon';
 import style from './index.module.less';
+import Loading from '@/pages/Loading';
 
 interface PlusFilesProp {
     action: string;
@@ -92,14 +93,16 @@ function ChatGroup() {
     const { username, token } = useUserStore();
     const { sendWrapper } = useSend();
     const { setStatus, status: Status } = useServerStatus();
-    const { select, setSelect } = useUserChat();
+    const { select, setSelect } = useUserChat(); // 左侧菜单Store
     const [websocketInstance, setWS] = useState<WebSocket | null>();
     const [content, setContent] = useState('');
-    const [drawerState, setDrawerState] = useState(false);
+    const [drawerState, setDrawerState] = useState(false); // 是否打开抽屉
+    const [loading, setLoading] = useState(true); // 是否为加载状态
+    const [drawLoading, setDrawLoading] = useState(true); // 是否为加载状态（抽屉）
     const [list, setList] = useState<GroupChatItemData[]>([]);
-    const [fileList, setFileList] = useState<UploadFile[]>([]);
-    const [currentMembers, setCurrentMembers] = useState<GroupMember[]>([]);
-    const [currentGroup, setCurrentGroup] = useState(null as unknown as GroupInfo);
+    const [fileList, setFileList] = useState<UploadFile[]>([]); // 附件截图列表
+    const [currentMembers, setCurrentMembers] = useState<GroupMember[]>([]); //当前全部群成员（异步）
+    const [currentGroup, setCurrentGroup] = useState(null as unknown as GroupInfo); //当前全部群信息（异步）
 
     const CurrentItems = (val: GroupMember) => {
         const contextMenus: ItemType[] = [];
@@ -226,13 +229,16 @@ function ChatGroup() {
     };
 
     //更新群成员列表
-    const updateMembers = () =>
+    const updateMembers = () => {
+        setDrawLoading(true);
         GetGroupMembers({ group: params.group_id! }).then((data) => {
             if (data.code) {
                 const members = data.data as unknown as GroupMember[];
                 setCurrentMembers(members);
             }
+            setDrawLoading(false);
         });
+    };
 
     // 发送消息滚动到底部
     const scrollbottom = () => {
@@ -277,6 +283,7 @@ function ChatGroup() {
     }, [drawerState]); //eslint-disable-line
 
     useEffect(() => {
+        setLoading(true);
         GetGroup({ group: select.substring(0, select.indexOf('/')) }).then((val) => {
             let info = null as unknown as GroupInfo;
             if (val.code) {
@@ -289,14 +296,16 @@ function ChatGroup() {
             }
             // 在api中是因为 确保 currentGroup 有值
             // 是否加入了群聊
-            GetJoinGroup({ user: username }).then((data) => {
-                if (data.code) {
-                    const group = data.data as GroupInfo[];
-                    if (group.find((val) => val.group_id === info.group_id)) return;
-                }
-                navigate('/user', { replace: true });
-                siderBus.emit('updateSider');
-            });
+            GetJoinGroup({ user: username })
+                .then((data) => {
+                    if (data.code) {
+                        const group = data.data as GroupInfo[];
+                        if (group.find((val) => val.group_id === info.group_id)) return;
+                    }
+                    navigate('/user', { replace: true });
+                    siderBus.emit('updateSider');
+                })
+                .then(() => setLoading(false));
         });
         let intervalNum: NodeJS.Timeout | number = -1;
         if (websocketInstance instanceof WebSocket) {
@@ -368,172 +377,194 @@ function ChatGroup() {
 
     return (
         <ChatContext.Provider value={ChatInject}>
-            <Flex className={style.ChatBox} vertical onContextMenu={(e) => e.preventDefault()}>
-                <Flex className={style.ChatHeader}>
-                    <Flex>
-                        <LeftOutlined
-                            onClick={() => {
-                                setSelect('');
-                                navigate('/user', { replace: true });
-                            }}
-                            className="my-[25%] cursor-pointer select-none rounded-full p-2 transition-colors duration-200 hover:bg-gray-100"
-                        />
-                    </Flex>
-                    <Flex align="center" className={style.ChatHeaderNickName}>
-                        <AvatarIcon url={currentGroup?.group_avatar} />
-                        {currentGroup && currentGroup.group_name}
-                    </Flex>
-                    <Flex style={{ width: '100%' }} flex="1">
-                        <span></span>
-                    </Flex>
-                    <Flex>
-                        <MenuOutlined style={{ cursor: 'pointer' }} onClick={handleClick} />
-                    </Flex>
-                </Flex>
-                <Flex flex={1} style={{ minHeight: '500px', height: '80%' }}>
-                    <ChatContainer type="group" ref={containerRef} list={list} />
-                </Flex>
-                <Flex className={style.ChatBoxBottom}>
-                    <Flex className={style.ChatBoxFiles}>
-                        {fileList.map((val, index) => (
-                            <Popover
-                                key={val.uid}
-                                content={
-                                    <PreviewImage FileObject={val.originFileObj as FileType} />
-                                }
-                            >
-                                <Alert
-                                    style={{
-                                        background: 'white',
-                                        border: '1px solid #ccc',
-                                        padding: '4px 8px',
-                                        margin: '4px',
-                                    }}
-                                    message={val.fileName ?? val.name}
-                                    onClose={() => handleRemoveImage(index)}
-                                    type="info"
-                                />
-                            </Popover>
-                        ))}
-                        <span
-                            style={{
-                                fontSize: '12px',
-                                height: '100%',
-                                display: 'flex',
-                                alignItems: 'center',
-                                color: '#ccc',
-                            }}
-                        >
-                            最大支持上传2张图片（每张1MB），支持上传文件类型：
-                            {AllowFileType.map((val) =>
-                                val.substring(val.lastIndexOf('/') + 1),
-                            ).join('、')}
-                        </span>
-                    </Flex>
-                    <div className={style.ChatInputBox}>
-                        <Input
-                            value={content}
-                            onInput={(e) => setContent((e.target as HTMLInputElement).value)}
-                            onPressEnter={handleSend}
-                            className={style.ChatInputWrapper}
-                            placeholder="请输入要聊天的内容"
-                        />
-                        <Flex className={style.ChatInputBottom}>
-                            <Flex className={style.ChatUploadButton}>
-                                <PlusFiles
-                                    action={`${ServerUrl}/user/upload-img`}
-                                    onChange={handleChange}
-                                    beforeUpload={beforeUpload}
-                                    fileList={fileList}
-                                />
-                            </Flex>
-                            <SendOutlined
-                                onClick={handleSend}
-                                className={style.ChatSendButton}
-                                size={20}
+            <Loading loading={loading}>
+                <Flex className={style.ChatBox} vertical onContextMenu={(e) => e.preventDefault()}>
+                    <Flex className={style.ChatHeader}>
+                        <Flex>
+                            <LeftOutlined
+                                onClick={() => {
+                                    setSelect('');
+                                    navigate('/user', { replace: true });
+                                }}
+                                className="my-[25%] cursor-pointer select-none rounded-full p-2 transition-colors duration-200 hover:bg-gray-100"
                             />
                         </Flex>
-                    </div>
-                </Flex>
-                {/* 侧栏 */}
-                <Drawer
-                    placement="right"
-                    closable={false}
-                    open={drawerState}
-                    onClose={() => setDrawerState(false)}
-                    getContainer={false}
-                >
-                    <Flex className="h-full w-full" gap={20} vertical>
-                        <Flex gap={5}>
-                            <AvatarIcon url={currentGroup.group_avatar}></AvatarIcon>
-                            <Flex align="center">{currentGroup.group_name}</Flex>
+                        <Flex align="center" className={style.ChatHeaderNickName}>
+                            <AvatarIcon url={currentGroup?.group_avatar} />
+                            {currentGroup && currentGroup.group_name}
                         </Flex>
-                        <Flex gap={5} vertical>
-                            <Title level={5}>群标识</Title>
-                            <Content>{currentGroup.group_id}</Content>
+                        <Flex style={{ width: '100%' }} flex="1">
+                            <span></span>
                         </Flex>
-                        <Flex gap={5} vertical>
-                            <Title level={5}>简介</Title>
-                            <Content>{currentGroup.group_desc}</Content>
-                        </Flex>
-                        <Flex vertical>
-                            <Title level={5}>成员</Title>
-                            <Row className="h-80 min-h-80 overflow-y-scroll">
-                                {currentMembers.map((val) => (
-                                    <Dropdown
-                                        key={val.user_id}
-                                        menu={{
-                                            items: CurrentItems(val),
-                                        }}
-                                        trigger={['contextMenu']}
-                                    >
-                                        <Col span={6}>
-                                            <Flex
-                                                vertical
-                                                className="cursor-pointer select-none rounded p-2 transition-colors hover:bg-gray-100"
-                                                align="center"
-                                            >
-                                                <AvatarIcon url={val.user_data.avatar} />
-                                                <Tooltip
-                                                    title={val.user_data.nickname}
-                                                    placement="bottom"
-                                                >
-                                                    <Content className="w-14 overflow-hidden text-ellipsis text-nowrap">
-                                                        {val.user_data.nickname}
-                                                    </Content>
-                                                </Tooltip>
-                                                <Content>
-                                                    {/* 标识 */}
-                                                    {val.auth == 2 && (
-                                                        <Tag bordered={false} color="orange">
-                                                            群主
-                                                        </Tag>
-                                                    )}
-                                                    {val.auth == 1 && (
-                                                        <Tag bordered={false} color="green">
-                                                            管理
-                                                        </Tag>
-                                                    )}
-                                                    {val.auth == 0 && (
-                                                        <Tag bordered={false}>成员</Tag>
-                                                    )}
-                                                </Content>
-                                            </Flex>
-                                        </Col>
-                                    </Dropdown>
-                                ))}
-                            </Row>
-                            <Flex vertical>
-                                <Button onClick={handleExitClick}>
-                                    {(currentGroup?.group_master || '') === username
-                                        ? '删除群组'
-                                        : '退出群聊'}
-                                </Button>
-                            </Flex>
+                        <Flex>
+                            <MenuOutlined style={{ cursor: 'pointer' }} onClick={handleClick} />
                         </Flex>
                     </Flex>
-                </Drawer>
-            </Flex>
+                    <Flex flex={1} style={{ minHeight: '500px', height: '80%' }}>
+                        <ChatContainer type="group" ref={containerRef} list={list} />
+                    </Flex>
+                    <Flex className={style.ChatBoxBottom}>
+                        <Flex className={style.ChatBoxFiles}>
+                            {fileList.map((val, index) => (
+                                <Popover
+                                    key={val.uid}
+                                    content={
+                                        <PreviewImage FileObject={val.originFileObj as FileType} />
+                                    }
+                                >
+                                    <Alert
+                                        style={{
+                                            background: 'white',
+                                            border: '1px solid #ccc',
+                                            padding: '4px 8px',
+                                            margin: '4px',
+                                        }}
+                                        message={val.fileName ?? val.name}
+                                        onClose={() => handleRemoveImage(index)}
+                                        type="info"
+                                    />
+                                </Popover>
+                            ))}
+                            <span
+                                style={{
+                                    fontSize: '12px',
+                                    height: '100%',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    color: '#ccc',
+                                }}
+                            >
+                                最大支持上传2张图片（每张1MB），支持上传文件类型：
+                                {AllowFileType.map((val) =>
+                                    val.substring(val.lastIndexOf('/') + 1),
+                                ).join('、')}
+                            </span>
+                        </Flex>
+                        <div className={style.ChatInputBox}>
+                            <Input
+                                value={content}
+                                onInput={(e) => setContent((e.target as HTMLInputElement).value)}
+                                onPressEnter={handleSend}
+                                className={style.ChatInputWrapper}
+                                placeholder="请输入要聊天的内容"
+                            />
+                            <Flex className={style.ChatInputBottom}>
+                                <Flex className={style.ChatUploadButton}>
+                                    <PlusFiles
+                                        action={`${ServerUrl}/user/upload-img`}
+                                        onChange={handleChange}
+                                        beforeUpload={beforeUpload}
+                                        fileList={fileList}
+                                    />
+                                </Flex>
+                                <SendOutlined
+                                    onClick={handleSend}
+                                    className={style.ChatSendButton}
+                                    size={20}
+                                />
+                            </Flex>
+                        </div>
+                    </Flex>
+                    {/* 侧栏 */}
+                    <Drawer
+                        placement="right"
+                        closable={false}
+                        open={drawerState}
+                        onClose={() => setDrawerState(false)}
+                        getContainer={false}
+                    >
+                        <Loading loading={drawLoading}>
+                            {currentGroup && (
+                                <Flex className="h-full w-full" gap={20} vertical>
+                                    <Flex gap={5}>
+                                        <AvatarIcon url={currentGroup.group_avatar}></AvatarIcon>
+                                        <Flex align="center">{currentGroup.group_name}</Flex>
+                                    </Flex>
+                                    <Flex gap={5} vertical>
+                                        <Title level={5}>群标识</Title>
+                                        <Content>{currentGroup.group_id}</Content>
+                                    </Flex>
+                                    <Flex gap={5} vertical>
+                                        <Title level={5}>简介</Title>
+                                        <Content>{currentGroup.group_desc}</Content>
+                                    </Flex>
+                                    <Flex vertical>
+                                        <Title level={5}>成员</Title>
+                                        <Row className="h-80 min-h-80 overflow-y-scroll">
+                                            {currentMembers.map((val) => (
+                                                <Dropdown
+                                                    key={val.user_id}
+                                                    menu={{
+                                                        items: CurrentItems(val),
+                                                    }}
+                                                    trigger={['contextMenu']}
+                                                >
+                                                    <Col
+                                                        span={6}
+                                                        onClick={() => {
+                                                            setDrawerState(false);
+                                                            siderBus.emit('openModalAddState', {
+                                                                key: val.user_id,
+                                                            });
+                                                        }}
+                                                    >
+                                                        <Flex
+                                                            vertical
+                                                            className="cursor-pointer select-none rounded p-2 transition-colors hover:bg-gray-100"
+                                                            align="center"
+                                                        >
+                                                            <AvatarIcon
+                                                                url={val.user_data.avatar}
+                                                            />
+                                                            <Tooltip
+                                                                title={val.user_data.nickname}
+                                                                placement="bottom"
+                                                            >
+                                                                <Content className="w-14 overflow-hidden text-ellipsis text-nowrap">
+                                                                    {val.user_data.nickname}
+                                                                </Content>
+                                                            </Tooltip>
+                                                            <Content>
+                                                                {/* 标识 */}
+                                                                {val.auth == 2 && (
+                                                                    <Tag
+                                                                        bordered={false}
+                                                                        color="orange"
+                                                                    >
+                                                                        群主
+                                                                    </Tag>
+                                                                )}
+                                                                {val.auth == 1 && (
+                                                                    <Tag
+                                                                        bordered={false}
+                                                                        color="green"
+                                                                    >
+                                                                        管理
+                                                                    </Tag>
+                                                                )}
+                                                                {val.auth == 0 && (
+                                                                    <Tag bordered={false}>成员</Tag>
+                                                                )}
+                                                            </Content>
+                                                        </Flex>
+                                                    </Col>
+                                                </Dropdown>
+                                            ))}
+                                        </Row>
+                                        <Flex vertical>
+                                            <Button onClick={handleExitClick}>
+                                                {(currentGroup?.group_master || '') === username
+                                                    ? '删除群组'
+                                                    : '退出群聊'}
+                                            </Button>
+                                        </Flex>
+                                    </Flex>
+                                </Flex>
+                            )}
+                        </Loading>
+                    </Drawer>
+                </Flex>
+            </Loading>
         </ChatContext.Provider>
     );
 }

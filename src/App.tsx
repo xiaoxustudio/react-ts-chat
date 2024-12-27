@@ -1,4 +1,4 @@
-import Lodding from "./pages/Lodding";
+import Lodding from "./pages/Loading";
 // import HeaderMenu from "./components/Header";
 import { Outlet } from "react-router";
 
