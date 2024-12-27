@@ -78,9 +78,25 @@ const ChatItem = forwardRef<HTMLDivElement, ChatItemProps>((props, ref) => {
                                 )}
                             </>
                         )}
-                        {item.send_id !== username && <AvatarIcon url={item.avatar} />}
+                        {item.send_id !== username && (
+                            <AvatarIcon
+                                url={
+                                    type === 'group'
+                                        ? (item as GroupChatItemData).send_data.user_data.avatar
+                                        : item.avatar
+                                }
+                            />
+                        )}
                         {item.nickname}
-                        {item.send_id === username && <AvatarIcon url={item.avatar} />}
+                        {item.send_id === username && (
+                            <AvatarIcon
+                                url={
+                                    type === 'group'
+                                        ? (item as GroupChatItemData).send_data.user_data.avatar
+                                        : item.avatar
+                                }
+                            />
+                        )}
                         {type === 'group' && item.send_id !== username && (
                             <>
                                 {(item as GroupChatItemData).send_data.auth == 2 && (
