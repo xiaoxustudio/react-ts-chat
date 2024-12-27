@@ -1,6 +1,5 @@
 import {
     Alert,
-    Avatar,
     Dropdown,
     Flex,
     Image,
@@ -21,19 +20,14 @@ import useServerStatus from '@/store/useServer';
 import { useNavigate, useParams } from 'react-router-dom';
 import { UserFriend, UserInfo, WsData } from '@/types';
 import ChatContext from '@/components/ChatContainer/utils/ChatContext';
-import {
-    LeftOutlined,
-    MenuOutlined,
-    PlusSquareOutlined,
-    SendOutlined,
-    UserOutlined,
-} from '@ant-design/icons';
+import { LeftOutlined, MenuOutlined, PlusSquareOutlined, SendOutlined } from '@ant-design/icons';
 import { FileType, getBase64 } from '@/utils';
 import useUserChat from '@/store/useUserChat';
 import GetUser from '@/apis/user/get-user';
 import DelFriend from '@/apis/user/del-friend';
 import siderBus from '@/event-bus/sider-bus';
 import GetFriend from '@/apis/user/get-friend';
+import AvatarIcon from '@/components/AvatarIcon/AvatarIcon';
 import style from './index.module.less';
 
 interface PlusFilesProp {
@@ -297,11 +291,7 @@ function Chat() {
                         />
                     </Flex>
                     <Flex align="center" className={style.ChatHeaderNickName}>
-                        <Avatar
-                            size="large"
-                            icon={(!currentPeople || !currentPeople?.avatar) && <UserOutlined />}
-                            src={`${ServerUrl}${currentPeople?.avatar?.slice(1)}`}
-                        />
+                        <AvatarIcon url={currentPeople?.avatar} />
                         {currentPeople && currentPeople.nickname}
                     </Flex>
                     <Flex style={{ width: '100%' }} flex="1">

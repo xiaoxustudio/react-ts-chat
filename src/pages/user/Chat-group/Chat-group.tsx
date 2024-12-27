@@ -1,6 +1,5 @@
 import {
     Alert,
-    Avatar,
     Button,
     Col,
     Drawer,
@@ -26,20 +25,13 @@ import useServerStatus from '@/store/useServer';
 import { useNavigate, useParams } from 'react-router-dom';
 import { GroupInfo, GroupMember, WsData } from '@/types';
 import ChatContext from '@/components/ChatContainer/utils/ChatContext';
-import {
-    LeftOutlined,
-    MenuOutlined,
-    PlusSquareOutlined,
-    SendOutlined,
-    UserOutlined,
-} from '@ant-design/icons';
+import { LeftOutlined, MenuOutlined, PlusSquareOutlined, SendOutlined } from '@ant-design/icons';
 import { FileType, getBase64 } from '@/utils';
 import useUserChat from '@/store/useUserChat';
 import siderBus from '@/event-bus/sider-bus';
 import GetGroup from '@/apis/group/get-group';
 import ExitGroup from '@/apis/group/exit-group';
 import GetJoinGroup from '@/apis/group/get-join-group';
-import style from './index.module.less';
 import GetGroupMembers from '@/apis/group/get-group-members';
 import Title from 'antd/es/typography/Title';
 import { Content } from 'antd/es/layout/layout';
@@ -47,6 +39,8 @@ import SetMemberAuth from '@/apis/group/set-member-auth';
 import { ItemType } from 'antd/es/menu/interface';
 import KickMember from '@/apis/group/kick-member';
 import { GroupChatItemData } from '@/components/ChatContainer/type';
+import AvatarIcon from '@/components/AvatarIcon/AvatarIcon';
+import style from './index.module.less';
 
 interface PlusFilesProp {
     action: string;
@@ -386,13 +380,7 @@ function ChatGroup() {
                         />
                     </Flex>
                     <Flex align="center" className={style.ChatHeaderNickName}>
-                        <Avatar
-                            size="large"
-                            icon={
-                                (!currentGroup || !currentGroup?.group_avatar) && <UserOutlined />
-                            }
-                            src={`${ServerUrl}${currentGroup?.group_avatar?.slice(1)}`}
-                        />
+                        <AvatarIcon url={currentGroup?.group_avatar} />
                         {currentGroup && currentGroup.group_name}
                     </Flex>
                     <Flex style={{ width: '100%' }} flex="1">
@@ -492,14 +480,7 @@ function ChatGroup() {
                                             className="cursor-pointer select-none rounded p-2 transition-colors hover:bg-gray-100"
                                             align="center"
                                         >
-                                            <Avatar
-                                                size="large"
-                                                icon={
-                                                    (!val.user_data.avatar ||
-                                                        !val.user_data.avatar) && <UserOutlined />
-                                                }
-                                                src={`${ServerUrl}${val.user_data.avatar?.slice(1)}`}
-                                            />
+                                            <AvatarIcon url={val.user_data.avatar} />
                                             <Tooltip
                                                 title={val.user_data.nickname}
                                                 placement="bottom"

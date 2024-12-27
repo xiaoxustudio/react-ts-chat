@@ -1,13 +1,14 @@
-import { Avatar, Flex, Image, Popover, Tag } from 'antd';
+import { Flex, Image, Popover, Tag } from 'antd';
 import classNames from 'classnames';
 import { forwardRef, useContext, useState } from 'react';
 import { ServerUrl } from '@/consts';
 import { Content } from 'antd/es/layout/layout';
 import useUserStore from '@/store/useUserStore';
-import { MoreOutlined, UserOutlined } from '@ant-design/icons';
+import { MoreOutlined } from '@ant-design/icons';
 import ChatContext from './utils/ChatContext';
 import { ChatItemType, GroupChatItemData, type ChatItemData } from './type';
 import TextArea from 'antd/es/input/TextArea';
+import AvatarIcon from '../AvatarIcon/AvatarIcon';
 import style from './chat-item.module.less';
 
 interface ChatItemProps {
@@ -77,21 +78,9 @@ const ChatItem = forwardRef<HTMLDivElement, ChatItemProps>((props, ref) => {
                                 )}
                             </>
                         )}
-                        {item.send_id !== username && (
-                            <Avatar
-                                size="large"
-                                icon={!item.avatar && <UserOutlined />}
-                                src={`${ServerUrl}${item.avatar?.slice(1)}`}
-                            />
-                        )}
+                        {item.send_id !== username && <AvatarIcon url={item.avatar} />}
                         {item.nickname}
-                        {item.send_id === username && (
-                            <Avatar
-                                size="large"
-                                icon={!item.avatar && <UserOutlined />}
-                                src={`${ServerUrl}${item.avatar?.slice(1)}`}
-                            />
-                        )}
+                        {item.send_id === username && <AvatarIcon url={item.avatar} />}
                         {type === 'group' && item.send_id !== username && (
                             <>
                                 {(item as GroupChatItemData).send_data.auth == 2 && (

@@ -1,6 +1,6 @@
 import React, { SyntheticEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import type { DropdownProps, MenuProps } from 'antd';
-import { Avatar, Dropdown, Flex, Menu, Tag, Tooltip } from 'antd';
+import { Dropdown, Flex, Menu, Tag, Tooltip } from 'antd';
 import classname from 'classnames';
 import useUserStore from '@/store/useUserStore';
 import { Outlet, useNavigate } from 'react-router';
@@ -13,22 +13,18 @@ import { SearchProps } from 'antd/es/input';
 import ModalAddState from './components/ModalAddState';
 import { MenuItem, items } from './consts/inex';
 import withAuth from '@/hook/useWithAuth';
-import { RepCode, ServerUrl } from '@/consts';
+import { RepCode } from '@/consts';
 import useUserChat from '@/store/useUserChat';
 import classNames from 'classnames';
 import GetFriend from '@/apis/user/get-friend';
 import SearchUser from '@/apis/user/search-user';
-import {
-    DoubleRightOutlined,
-    MenuFoldOutlined,
-    SettingOutlined,
-    UserOutlined,
-} from '@ant-design/icons';
+import { DoubleRightOutlined, MenuFoldOutlined, SettingOutlined } from '@ant-design/icons';
 import siderBus from '@/event-bus/sider-bus';
 import { Content } from 'antd/es/layout/layout';
 import GetJoinGroup from '@/apis/group/get-join-group';
 import SearchGroup from '@/apis/group/search-group';
 import ModalCreateGroup from './components/ModalCreateGroup';
+import AvatarIcon from '@/components/AvatarIcon/AvatarIcon';
 import styles from './user.module.less';
 
 interface MenuInfo {
@@ -120,14 +116,7 @@ const User: React.FC = withAuth(() => {
                                             </Content>
                                         </Flex>
                                     ),
-                                    icon: (
-                                        <Avatar
-                                            className="-ml-2 bg-white"
-                                            size="small"
-                                            icon={!val.avatar && <UserOutlined />}
-                                            src={`${ServerUrl}${val.avatar?.slice(1)}`}
-                                        />
-                                    ),
+                                    icon: <AvatarIcon url={val.avatar} />,
                                 }) as ItemType,
                         ) as ItemType[];
                         allList = _cache;
@@ -155,14 +144,7 @@ const User: React.FC = withAuth(() => {
                                                 </Tag>
                                             </Flex>
                                         ),
-                                        icon: (
-                                            <Avatar
-                                                className="-ml-2 bg-white"
-                                                size="small"
-                                                icon={!val.group_avatar && <UserOutlined />}
-                                                src={`${ServerUrl}${val.group_avatar?.slice(1)}`}
-                                            />
-                                        ),
+                                        icon: <AvatarIcon url={val.group_avatar} />,
                                     }) as ItemType,
                             ) as ItemType[];
                             allList = [...allList, ..._cache];
@@ -206,13 +188,7 @@ const User: React.FC = withAuth(() => {
                                 </Content>
                             </Flex>
                         ),
-                        icon: (
-                            <Avatar
-                                className="bg-white"
-                                icon={!val.friend_data.avatar && <UserOutlined />}
-                                src={`${ServerUrl}${val.friend_data.avatar?.slice(1)}`}
-                            />
-                        ),
+                        icon: <AvatarIcon url={val.friend_data.avatar} />,
                     }));
                     allList = allList.concat(pFdata);
                 }
@@ -238,13 +214,7 @@ const User: React.FC = withAuth(() => {
                                     </Content>
                                 </Flex>
                             ),
-                            icon: (
-                                <Avatar
-                                    className="bg-white"
-                                    icon={!val.group_data.group_avatar && <UserOutlined />}
-                                    src={`${ServerUrl}${val.group_data.group_avatar?.slice(1)}`}
-                                />
-                            ),
+                            icon: <AvatarIcon url={val.group_data.group_avatar} />,
                         }));
                         allList = allList.concat(pFdata);
                     }
@@ -303,11 +273,7 @@ const User: React.FC = withAuth(() => {
                         </Flex>
                         {/* 用户信息 */}
                         <Flex className="w-full gap-2" align="center" vertical={collapsed}>
-                            <Avatar
-                                className="w-8 min-w-8"
-                                icon={!data.avatar && <UserOutlined />}
-                                src={`${ServerUrl}${data.avatar?.slice(1)}`}
-                            />
+                            <AvatarIcon url={data.avatar} />
                             <Content className="overflow-hidden text-ellipsis text-nowrap text-center">
                                 {collapsed ? (
                                     <Tooltip title={nickname} placement="right">

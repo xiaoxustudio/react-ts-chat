@@ -2,12 +2,13 @@ import GetUser from '@/apis/user/get-user';
 import { RepCode, ServerUrl } from '@/consts';
 import useUserStore from '@/store/useUserStore';
 import { UserInfo } from '@/types';
-import { Button, Flex, Image, Tag, Upload, message, Input } from 'antd';
+import { Button, Flex, Tag, Upload, message, Input } from 'antd';
 import { useEffect } from 'react';
 import { Content } from 'antd/es/layout/layout';
 import { LeftOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router';
 import useUserChat from '@/store/useUserChat';
+import AvatarIcon from '@/components/AvatarIcon/AvatarIcon';
 import style from './index.module.less';
 
 function UserInfoComp() {
@@ -40,13 +41,7 @@ function UserInfoComp() {
                 <Flex align="center">
                     <Content className="text-nowrap">头像：</Content>
                     <Flex style={{ alignItems: 'center', gap: `5px` }}>
-                        <Image
-                            wrapperClassName={style.iconAvatarMask}
-                            className={style.iconAvatar}
-                            width={64}
-                            height={64}
-                            src={`${ServerUrl}${data.avatar?.slice(1)}`}
-                        />
+                        <AvatarIcon className={style.iconAvatar} url={data.avatar} />
                         <Upload
                             headers={{ Authorization: `${token}` }}
                             action={`${ServerUrl}/user/change-avatar`}

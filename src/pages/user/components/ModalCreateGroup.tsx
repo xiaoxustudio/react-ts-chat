@@ -10,10 +10,10 @@ import CreateGroup, { CreateGroupProp } from '@/apis/group/create-group';
 import { ServerUrl } from '@/consts';
 import { Upload } from 'antd';
 import useUserStore from '@/store/useUserStore';
-import { Image } from 'antd';
 import { UploadChangeParam, UploadFile } from 'antd/es/upload';
 import { message } from 'antd';
 import siderBus from '@/event-bus/sider-bus';
+import AvatarIcon from '@/components/AvatarIcon/AvatarIcon';
 
 const ModalCreateGroup: FC<ModalFuncProps> = (prop) => {
     const { token } = useUserStore();
@@ -45,23 +45,19 @@ const ModalCreateGroup: FC<ModalFuncProps> = (prop) => {
                 <Flex>
                     <Content>群聊头像</Content>
                     <Flex className="gap-5" align="center">
-                        <Content>
-                            <Image
-                                width={64}
-                                height={64}
-                                className="rounded-full bg-gray-200"
-                                src={`${ServerUrl}${groupInfo.group_avatar?.slice(1)}`}
-                            />
-                            <Upload
-                                headers={{ Authorization: `${token}` }}
-                                action={`${ServerUrl}/group/upload-group-avatar`}
-                                showUploadList={false}
-                                onChange={updateInfo}
-                                maxCount={1}
-                            >
-                                <Button>修改头像</Button>
-                            </Upload>
-                        </Content>
+                        <AvatarIcon
+                            className="rounded-full bg-gray-200"
+                            url={groupInfo.group_avatar}
+                        />
+                        <Upload
+                            headers={{ Authorization: `${token}` }}
+                            action={`${ServerUrl}/group/upload-group-avatar`}
+                            showUploadList={false}
+                            onChange={updateInfo}
+                            maxCount={1}
+                        >
+                            <Button>修改头像</Button>
+                        </Upload>
                     </Flex>
                     <Content />
                 </Flex>
