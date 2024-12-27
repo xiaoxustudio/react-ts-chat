@@ -44,6 +44,7 @@ import GetGroupMembers from '@/apis/group/get-group-members';
 import Title from 'antd/es/typography/Title';
 import { Content } from 'antd/es/layout/layout';
 import SetMemberAuth from '@/apis/group/set-member-auth';
+import { ItemType } from 'antd/es/menu/interface';
 
 interface PlusFilesProp {
     action: string;
@@ -103,6 +104,48 @@ function ChatGroup() {
     const [fileList, setFileList] = useState<UploadFile[]>([]);
     const [currentMembers, setCurrentMembers] = useState<GroupMember[]>([]);
     const [currentGroup, setCurrentGroup] = useState(null as unknown as GroupInfo);
+
+    const CurrentItems = (val: GroupMember) => {
+        const contextMenus: ItemType[] = [];
+        // 查找自己群组数据
+        const SelfPeople = currentMembers.find((cMember) => cMember.user_id === username);
+        if (SelfPeople && SelfPeople.auth > 0) {
+            if (val.auth != 2)
+                contextMenus.push({
+                    key: 'set-manage',
+                    label: !val.auth ? '设为管理员' : '降为成员',
+                    onClick() {
+                        const people = currentMembers.find(
+                            (cMember) => cMember.user_id === val.user_id,
+                        );
+                        if (people) {
+                            SetMemberAuth({
+                                auth: val.auth ? 0 : 1,
+                                group: currentGroup.group_id,
+                                user: val.user_id,
+                            }).then((data) => {
+                                if (data.code) {
+                                    message.success(data.msg);
+                                    updateMembers();
+                                } else {
+                                    message.error(data.msg);
+                                }
+                            });
+                        }
+                    },
+                });
+            if (SelfPeople.auth == 2 && val.user_id != username)
+                contextMenus.push({
+                    key: 'kick-member',
+                    label: '踢出成员',
+                    onClick() {
+                        message.info('未开发');
+                    },
+                });
+        }
+
+        return contextMenus;
+    };
 
     const handleExitClick = () => {
         const isMaster = currentGroup.group_master === username;
@@ -422,37 +465,7 @@ function ChatGroup() {
                                 <Dropdown
                                     key={val.user_id}
                                     menu={{
-                                        items:
-                                            val.auth != 2
-                                                ? [
-                                                      {
-                                                          key: 'set-manage',
-                                                          label: !val.auth
-                                                              ? '设为管理员'
-                                                              : '降为成员',
-                                                          onClick() {
-                                                              const people = currentMembers.find(
-                                                                  (val) =>
-                                                                      val.user_id === val.user_id,
-                                                              );
-                                                              if (people) {
-                                                                  SetMemberAuth({
-                                                                      auth: val.auth ? 0 : 1,
-                                                                      group: currentGroup.group_id,
-                                                                      user: val.user_id,
-                                                                  }).then((data) => {
-                                                                      if (data.code) {
-                                                                          message.success(data.msg);
-                                                                          updateMembers();
-                                                                      } else {
-                                                                          message.error(data.msg);
-                                                                      }
-                                                                  });
-                                                              }
-                                                          },
-                                                      },
-                                                  ]
-                                                : [],
+                                        items: CurrentItems(val),
                                     }}
                                     trigger={['contextMenu']}
                                 >
