@@ -44,7 +44,7 @@ const User: React.FC = withAuth(() => {
     const [collapsed, setCollapsed] = useState(false); // 收缩菜单
     const style_Content = classname(styles['container-content']);
     const computedOpen = useMemo(
-        () => Object.keys(SelectMenuItem ?? {}).length > 1,
+        () => Object.keys(SelectMenuItem ?? {}).length > 1, // 如果只是一个key的话，那么就是divider
         [SelectMenuItem],
     ); // 是否显示Modal
     const [groupModal, setGroupModal] = useState(false);
@@ -242,7 +242,7 @@ const User: React.FC = withAuth(() => {
     };
 
     const openModalAddState = ({ key }: { key: string }) => {
-        console.log('openModalAddState', key);
+        setSelectMenuItem({ title: key, key });
     };
 
     useEffect(() => {
