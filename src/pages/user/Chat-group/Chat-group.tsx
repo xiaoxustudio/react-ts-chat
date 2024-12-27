@@ -8,7 +8,6 @@ import {
     Flex,
     Image,
     Input,
-    MenuProps,
     Popover,
     Row,
     Tag,
@@ -44,7 +43,6 @@ import style from './index.module.less';
 import GetGroupMembers from '@/apis/group/get-group-members';
 import Title from 'antd/es/typography/Title';
 import { Content } from 'antd/es/layout/layout';
-import GetGroupMember from '@/apis/group/get-group-member';
 import SetMemberAuth from '@/apis/group/set-member-auth';
 
 interface PlusFilesProp {
@@ -424,31 +422,37 @@ function ChatGroup() {
                                 <Dropdown
                                     key={val.user_id}
                                     menu={{
-                                        items: [
-                                            {
-                                                key: 'set-manage',
-                                                label: !val.auth ? '设为管理员' : '降为成员',
-                                                onClick() {
-                                                    const people = currentMembers.find(
-                                                        (val) => val.user_id === val.user_id,
-                                                    );
-                                                    if (people) {
-                                                        SetMemberAuth({
-                                                            auth: val.auth ? 0 : 1,
-                                                            group: currentGroup.group_id,
-                                                            user: val.user_id,
-                                                        }).then((data) => {
-                                                            if (data.code) {
-                                                                message.success(data.msg);
-                                                                updateMembers();
-                                                            } else {
-                                                                message.error(data.msg);
-                                                            }
-                                                        });
-                                                    }
-                                                },
-                                            },
-                                        ],
+                                        items:
+                                            val.auth != 2
+                                                ? [
+                                                      {
+                                                          key: 'set-manage',
+                                                          label: !val.auth
+                                                              ? '设为管理员'
+                                                              : '降为成员',
+                                                          onClick() {
+                                                              const people = currentMembers.find(
+                                                                  (val) =>
+                                                                      val.user_id === val.user_id,
+                                                              );
+                                                              if (people) {
+                                                                  SetMemberAuth({
+                                                                      auth: val.auth ? 0 : 1,
+                                                                      group: currentGroup.group_id,
+                                                                      user: val.user_id,
+                                                                  }).then((data) => {
+                                                                      if (data.code) {
+                                                                          message.success(data.msg);
+                                                                          updateMembers();
+                                                                      } else {
+                                                                          message.error(data.msg);
+                                                                      }
+                                                                  });
+                                                              }
+                                                          },
+                                                      },
+                                                  ]
+                                                : [],
                                     }}
                                     trigger={['contextMenu']}
                                 >
