@@ -4,9 +4,11 @@ import {
     Button,
     Col,
     Drawer,
+    Dropdown,
     Flex,
     Image,
     Input,
+    MenuProps,
     Popover,
     Row,
     Tag,
@@ -42,6 +44,8 @@ import style from './index.module.less';
 import GetGroupMembers from '@/apis/group/get-group-members';
 import Title from 'antd/es/typography/Title';
 import { Content } from 'antd/es/layout/layout';
+import GetGroupMember from '@/apis/group/get-group-member';
+import SetMemberAuth from '@/apis/group/set-member-auth';
 
 interface PlusFilesProp {
     action: string;
@@ -313,7 +317,7 @@ function ChatGroup() {
 
     return (
         <ChatContext.Provider value={ChatInject}>
-            <Flex className={style.ChatBox} vertical>
+            <Flex className={style.ChatBox} vertical onContextMenu={(e) => e.preventDefault()}>
                 <Flex className={style.ChatHeader}>
                     <Flex>
                         <LeftOutlined
@@ -417,8 +421,38 @@ function ChatGroup() {
                         <Title level={5}>成员</Title>
                         <Row className="h-80 min-h-80 overflow-y-scroll">
                             {currentMembers.map((val) => (
-                                <Col span={6} key={val.user_id}>
-                                    <Tooltip title={val.user_data.nickname} placement="bottom">
+                                <Dropdown
+                                    key={val.user_id}
+                                    menu={{
+                                        items: [
+                                            {
+                                                key: 'set-manage',
+                                                label: !val.auth ? '设为管理员' : '降为成员',
+                                                onClick() {
+                                                    const people = currentMembers.find(
+                                                        (val) => val.user_id === val.user_id,
+                                                    );
+                                                    if (people) {
+                                                        SetMemberAuth({
+                                                            auth: val.auth ? 0 : 1,
+                                                            group: currentGroup.group_id,
+                                                            user: val.user_id,
+                                                        }).then((data) => {
+                                                            if (data.code) {
+                                                                message.success(data.msg);
+                                                                updateMembers();
+                                                            } else {
+                                                                message.error(data.msg);
+                                                            }
+                                                        });
+                                                    }
+                                                },
+                                            },
+                                        ],
+                                    }}
+                                    trigger={['contextMenu']}
+                                >
+                                    <Col span={6}>
                                         <Flex
                                             vertical
                                             className="cursor-pointer select-none rounded p-2 transition-colors hover:bg-gray-100"
@@ -432,9 +466,14 @@ function ChatGroup() {
                                                 }
                                                 src={`${ServerUrl}${val.user_data.avatar?.slice(1)}`}
                                             />
-                                            <Content className="w-14 overflow-hidden text-ellipsis text-nowrap">
-                                                {val.user_data.nickname}
-                                            </Content>
+                                            <Tooltip
+                                                title={val.user_data.nickname}
+                                                placement="bottom"
+                                            >
+                                                <Content className="w-14 overflow-hidden text-ellipsis text-nowrap">
+                                                    {val.user_data.nickname}
+                                                </Content>
+                                            </Tooltip>
                                             <Content>
                                                 {val.auth == 2 && (
                                                     <Tag bordered={false} color="orange">
@@ -449,8 +488,8 @@ function ChatGroup() {
                                                 {val.auth == 0 && <Tag bordered={false}>成员</Tag>}
                                             </Content>
                                         </Flex>
-                                    </Tooltip>
-                                </Col>
+                                    </Col>
+                                </Dropdown>
                             ))}
                         </Row>
                         <Flex vertical>

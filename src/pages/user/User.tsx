@@ -1,6 +1,6 @@
 import React, { SyntheticEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import type { DropdownProps, MenuProps } from 'antd';
-import { Avatar, ConfigProvider, Dropdown, Flex, Menu, Tag, Tooltip } from 'antd';
+import { Avatar, Dropdown, Flex, Menu, Tag, Tooltip } from 'antd';
 import classname from 'classnames';
 import useUserStore from '@/store/useUserStore';
 import { Outlet, useNavigate } from 'react-router';
@@ -320,26 +320,15 @@ const User: React.FC = withAuth(() => {
                         </Flex>
                     </Flex>
                     {/* 侧栏 */}
-                    <ConfigProvider
-                        theme={{
-                            components: {
-                                Menu: {
-                                    itemColor: 'white',
-                                    itemHoverColor: 'white',
-                                },
-                            },
-                        }}
-                    >
-                        <Menu
-                            style={{ height: '95%' }}
-                            onClick={onClick}
-                            mode="inline"
-                            items={MenuList}
-                            selectedKeys={[select]}
-                            inlineCollapsed={collapsed}
-                            forceSubMenuRender
-                        />
-                    </ConfigProvider>
+                    <Menu
+                        style={{ height: '95%' }}
+                        onClick={onClick}
+                        mode="inline"
+                        items={MenuList}
+                        selectedKeys={[select]}
+                        inlineCollapsed={collapsed}
+                        forceSubMenuRender
+                    />
                     {/* 底部设置 */}
                     <Flex style={{ padding: '5px 0 20px 0' }}>
                         <Flex>{''}</Flex>
