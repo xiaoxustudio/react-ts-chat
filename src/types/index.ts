@@ -53,6 +53,15 @@ export interface UserGroup {
     group_data: GroupInfo;
 }
 
+export interface GroupMember {
+    id: string;
+    user_id: string;
+    group_id: string;
+    add_time: string;
+    auth: number;
+    user_data: UserInfo;
+}
+
 interface _SearchInputProps {
     options?: MenuProps;
     open: boolean;

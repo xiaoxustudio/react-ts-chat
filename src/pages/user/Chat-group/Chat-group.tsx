@@ -1,12 +1,16 @@
 import {
     Alert,
     Avatar,
-    Dropdown,
+    Button,
+    Col,
+    Drawer,
     Flex,
     Image,
     Input,
-    MenuProps,
     Popover,
+    Row,
+    Tag,
+    Tooltip,
     Upload,
     UploadFile,
     UploadProps,
@@ -19,7 +23,7 @@ import { AllowFileType, ServerUrl, WsCode, wsUrlGroup } from '@/consts';
 import useSend from '@/hook/useSend';
 import useServerStatus from '@/store/useServer';
 import { useNavigate, useParams } from 'react-router-dom';
-import { GroupInfo, WsData } from '@/types';
+import { GroupInfo, GroupMember, WsData } from '@/types';
 import ChatContext from '@/components/ChatContainer/utils/ChatContext';
 import {
     LeftOutlined,
@@ -35,6 +39,9 @@ import GetGroup from '@/apis/group/get-group';
 import ExitGroup from '@/apis/group/exit-group';
 import GetJoinGroup from '@/apis/group/get-join-group';
 import style from './index.module.less';
+import GetGroupMembers from '@/apis/group/get-group-members';
+import Title from 'antd/es/typography/Title';
+import { Content } from 'antd/es/layout/layout';
 
 interface PlusFilesProp {
     action: string;
@@ -89,32 +96,31 @@ function ChatGroup() {
     const { select } = useUserChat();
     const [websocketInstance, setWS] = useState<WebSocket | null>();
     const [content, setContent] = useState('');
+    const [drawerState, setDrawerState] = useState(false);
     const [list, setList] = useState<any[]>([]);
     const [fileList, setFileList] = useState<UploadFile[]>([]);
+    const [currentMembers, setCurrentMembers] = useState<GroupMember[]>([]);
     const [currentGroup, setCurrentGroup] = useState(null as unknown as GroupInfo);
-    const items: MenuProps['items'] = [
-        {
-            key: '1',
-            label: (currentGroup?.group_master || '') === username ? '删除群组' : '退出群聊',
-            onClick() {
-                const isMaster = currentGroup.group_master === username;
-                if (isMaster) {
-                    // 删除群聊
-                    message.info('未开发！');
+    const handleExitClick = () => {
+        const isMaster = currentGroup.group_master === username;
+        if (isMaster) {
+            // 删除群聊
+            message.info('未开发！');
+        } else {
+            ExitGroup({ group: currentGroup.group_id }).then((data) => {
+                if (data.code) {
+                    message.success(data.msg);
+                    navigate('/user', { replace: true });
+                    siderBus.emit('updateSider');
                 } else {
-                    ExitGroup({ group: currentGroup.group_id }).then((data) => {
-                        if (data.code) {
-                            message.success(data.msg);
-                            navigate('/user', { replace: true });
-                            siderBus.emit('updateSider');
-                        } else {
-                            message.error(data.msg);
-                        }
-                    });
+                    message.error(data.msg);
                 }
-            },
-        },
-    ];
+            });
+        }
+    };
+    const handleClick = () => {
+        setDrawerState(!drawerState);
+    };
 
     // 处理上传文件
     const handleChange: UploadProps['onChange'] = (info) => {
@@ -166,6 +172,14 @@ function ChatGroup() {
         }
     };
 
+    const updateMembers = () =>
+        GetGroupMembers({ group: params.group_id! }).then((data) => {
+            if (data.code) {
+                const members = data.data as unknown as GroupMember[];
+                setCurrentMembers(members);
+            }
+        });
+
     // 发送消息滚动到底部
     const scrollbottom = () => {
         if (containerRef.current) {
@@ -195,14 +209,18 @@ function ChatGroup() {
         [sendWrapper, websocketInstance],
     );
 
-    useEffect(() => {
-        scrollbottom();
-    }, [list]);
-
     const ChatInject = useMemo(
         () => ({ onWidthDraw, group_id: params.group_id }),
         [onWidthDraw, params.group_id],
     );
+
+    useEffect(() => {
+        scrollbottom();
+    }, [list]);
+
+    useEffect(() => {
+        if (drawerState) updateMembers();
+    }, [drawerState]); //eslint-disable-line
 
     useEffect(() => {
         GetGroup({ group: select.substring(0, select.indexOf('/')) }).then((val) => {
@@ -222,7 +240,6 @@ function ChatGroup() {
                 navigate('/user', { replace: true });
             });
         });
-
         let intervalNum: NodeJS.Timeout | number = -1;
         if (websocketInstance instanceof WebSocket) {
             websocketInstance.close();
@@ -234,7 +251,6 @@ function ChatGroup() {
                 // 启动心跳
                 intervalNum = setInterval(() => {
                     if (ws.readyState !== 1) {
-                        setStatus(0);
                         clearInterval(intervalNum);
                         message.error('聊天加载失败！');
                         ws.close();
@@ -247,7 +263,7 @@ function ChatGroup() {
                             data: username,
                         }),
                     );
-                }, 1000);
+                }, 2000);
                 // 建立连接通道
                 ws.send(
                     sendWrapper({
@@ -269,7 +285,9 @@ function ChatGroup() {
             switch (data.type) {
                 case WsCode.HeartBeatServer:
                     // console.log("接收到服务器心跳：", data);
-                    !Status && setStatus(1);
+                    if (!Status) {
+                        setStatus(1);
+                    }
                     break;
                 case WsCode.UpdateMsgList:
                     console.log('接收到服务器更新数据：', data);
@@ -278,15 +296,15 @@ function ChatGroup() {
             }
         };
         ws.onerror = () => {
-            message.error('聊天断开失败！');
+            message.error('聊天异常！');
             ws.close();
             setStatus(0);
         };
+        ws.onclose = () => setStatus(0);
         scrollbottom();
         return () => {
             ws.close();
             clearInterval(intervalNum);
-            setStatus(0);
         };
     }, []); //eslint-disable-line
 
@@ -314,9 +332,7 @@ function ChatGroup() {
                         <span></span>
                     </Flex>
                     <Flex>
-                        <Dropdown menu={{ items }}>
-                            <MenuOutlined style={{ cursor: 'pointer' }} />
-                        </Dropdown>
+                        <MenuOutlined style={{ cursor: 'pointer' }} onClick={handleClick} />
                     </Flex>
                 </Flex>
                 <Flex flex={1} style={{ minHeight: '500px', height: '80%' }}>
@@ -341,7 +357,6 @@ function ChatGroup() {
                                     message={val.fileName ?? val.name}
                                     onClose={() => handleRemoveImage(index)}
                                     type="info"
-                                    closable
                                 />
                             </Popover>
                         ))}
@@ -385,6 +400,62 @@ function ChatGroup() {
                         </Flex>
                     </div>
                 </Flex>
+                <Drawer
+                    placement="right"
+                    closable={false}
+                    open={drawerState}
+                    onClose={() => setDrawerState(false)}
+                    getContainer={false}
+                >
+                    <Flex vertical>
+                        <Title level={5}>成员</Title>
+                        <Row className="h-80 min-h-80 overflow-y-scroll">
+                            {currentMembers.map((val) => (
+                                <Col span={6} key={val.user_id}>
+                                    <Tooltip title={val.user_data.nickname} placement="bottom">
+                                        <Flex
+                                            vertical
+                                            className="cursor-pointer select-none rounded p-2 transition-colors hover:bg-gray-100"
+                                            align="center"
+                                        >
+                                            <Avatar
+                                                size="large"
+                                                icon={
+                                                    (!val.user_data.avatar ||
+                                                        !val.user_data.avatar) && <UserOutlined />
+                                                }
+                                                src={`${ServerUrl}${val.user_data.avatar?.slice(1)}`}
+                                            />
+                                            <Content className="w-14 overflow-hidden text-ellipsis text-nowrap">
+                                                {val.user_data.nickname}
+                                            </Content>
+                                            <Content>
+                                                {val.auth == 2 && (
+                                                    <Tag bordered={false} color="orange">
+                                                        群主
+                                                    </Tag>
+                                                )}
+                                                {val.auth == 1 && (
+                                                    <Tag bordered={false} color="green">
+                                                        管理
+                                                    </Tag>
+                                                )}
+                                                {val.auth == 0 && <Tag bordered={false}>成员</Tag>}
+                                            </Content>
+                                        </Flex>
+                                    </Tooltip>
+                                </Col>
+                            ))}
+                        </Row>
+                        <Flex vertical>
+                            <Button onClick={handleExitClick}>
+                                {(currentGroup?.group_master || '') === username
+                                    ? '删除群组'
+                                    : '退出群聊'}
+                            </Button>
+                        </Flex>
+                    </Flex>
+                </Drawer>
             </Flex>
         </ChatContext.Provider>
     );

@@ -23,9 +23,9 @@ const ModalAddState: FC<NProp> = (prop) => {
         if (prop.isGroup) {
             JoinGroup({ group: prop.selectMenuItem!.key as string }).then((data) => {
                 if (data.code == RepCode.Success) {
+                    siderBus.emit('updateSider');
                     message.success(data.msg);
                     prop.emitOpen();
-                    siderBus.emit('updateSider');
                 } else {
                     message.error(data.msg);
                 }
@@ -33,9 +33,9 @@ const ModalAddState: FC<NProp> = (prop) => {
         } else {
             AddFriend({ user: prop.selectMenuItem!.key as string }).then((data) => {
                 if (data.code == RepCode.Success) {
+                    siderBus.emit('updateSider');
                     message.success(data.msg);
                     prop.emitOpen();
-                    siderBus.emit('updateSider');
                 } else {
                     message.error(data.msg);
                 }
