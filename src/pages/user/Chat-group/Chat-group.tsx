@@ -93,7 +93,7 @@ function ChatGroup() {
     const { username, token } = useUserStore();
     const { sendWrapper } = useSend();
     const { setStatus, status: Status } = useServerStatus();
-    const { select } = useUserChat();
+    const { select, setSelect } = useUserChat();
     const [websocketInstance, setWS] = useState<WebSocket | null>();
     const [content, setContent] = useState('');
     const [drawerState, setDrawerState] = useState(false);
@@ -101,6 +101,7 @@ function ChatGroup() {
     const [fileList, setFileList] = useState<UploadFile[]>([]);
     const [currentMembers, setCurrentMembers] = useState<GroupMember[]>([]);
     const [currentGroup, setCurrentGroup] = useState(null as unknown as GroupInfo);
+
     const handleExitClick = () => {
         const isMaster = currentGroup.group_master === username;
         if (isMaster) {
@@ -118,6 +119,7 @@ function ChatGroup() {
             });
         }
     };
+
     const handleClick = () => {
         setDrawerState(!drawerState);
     };
@@ -172,6 +174,7 @@ function ChatGroup() {
         }
     };
 
+    //更新群成员列表
     const updateMembers = () =>
         GetGroupMembers({ group: params.group_id! }).then((data) => {
             if (data.code) {
@@ -314,7 +317,10 @@ function ChatGroup() {
                 <Flex className={style.ChatHeader}>
                     <Flex>
                         <LeftOutlined
-                            onClick={() => navigate('/user', { replace: true })}
+                            onClick={() => {
+                                setSelect('');
+                                navigate('/user', { replace: true });
+                            }}
                             className="my-[25%] cursor-pointer select-none rounded-full p-2 transition-colors duration-200 hover:bg-gray-100"
                         />
                     </Flex>

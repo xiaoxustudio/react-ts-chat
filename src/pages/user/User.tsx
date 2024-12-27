@@ -1,6 +1,6 @@
 import React, { SyntheticEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import type { DropdownProps, MenuProps } from 'antd';
-import { Avatar, Dropdown, Flex, Menu, Tag, Tooltip } from 'antd';
+import { Avatar, ConfigProvider, Dropdown, Flex, Menu, Tag, Tooltip } from 'antd';
 import classname from 'classnames';
 import useUserStore from '@/store/useUserStore';
 import { Outlet, useNavigate } from 'react-router';
@@ -18,7 +18,12 @@ import useUserChat from '@/store/useUserChat';
 import classNames from 'classnames';
 import GetFriend from '@/apis/user/get-friend';
 import SearchUser from '@/apis/user/search-user';
-import { LeftOutlined, RightOutlined, SettingOutlined, UserOutlined } from '@ant-design/icons';
+import {
+    DoubleRightOutlined,
+    MenuFoldOutlined,
+    SettingOutlined,
+    UserOutlined,
+} from '@ant-design/icons';
 import siderBus from '@/event-bus/sider-bus';
 import { Content } from 'antd/es/layout/layout';
 import GetJoinGroup from '@/apis/group/get-join-group';
@@ -186,10 +191,11 @@ const User: React.FC = withAuth(() => {
                     const fdata = data.data as UserFriend[];
                     const pFdata = fdata.map((val) => ({
                         key: `${val.friend_id}/chat`,
+                        title: val.friend_data.nickname,
                         label: (
                             <Flex>
                                 <Content
-                                    className={`w-1/2 overflow-hidden text-ellipsis text-nowrap`}
+                                    className={`w-1/2 overflow-hidden text-ellipsis text-nowrap ${collapsed ? 'text-white' : ''}`}
                                 >
                                     {val.friend_data.nickname}
                                 </Content>
@@ -217,20 +223,19 @@ const User: React.FC = withAuth(() => {
                         const fdata = data.data as UserGroup[];
                         const pFdata = fdata.map((val) => ({
                             key: `${val.group_id}/group`,
+                            title: val.group_data.group_name,
                             label: (
                                 <Flex>
                                     <Content
-                                        className={`w-1/2 overflow-hidden text-ellipsis text-nowrap ${collapsed ? 'text-white' : 'text-black'}`}
+                                        className={`w-1/2 overflow-hidden text-ellipsis text-nowrap ${collapsed ? 'text-white' : ''}`}
                                     >
                                         {val.group_data.group_name}
                                     </Content>
-                                    {!collapsed && (
-                                        <Content>
-                                            <Tag className="text-xs" color="blue">
-                                                群组
-                                            </Tag>
-                                        </Content>
-                                    )}
+                                    <Content>
+                                        <Tag className="text-xs" color="blue">
+                                            群组
+                                        </Tag>
+                                    </Content>
                                 </Flex>
                             ),
                             icon: (
@@ -284,18 +289,19 @@ const User: React.FC = withAuth(() => {
                     >
                         <Flex className={collapsed ? 'w-full justify-center' : ''} align="center">
                             {collapsed && (
-                                <RightOutlined
+                                <DoubleRightOutlined
                                     className="select-none rounded p-2 transition-colors duration-200 hover:bg-gray-200"
                                     onClick={toggleCollapsed}
                                 />
                             )}
                             {!collapsed && (
-                                <LeftOutlined
+                                <MenuFoldOutlined
                                     className="select-none rounded p-2 transition-colors duration-200 hover:bg-gray-200"
                                     onClick={toggleCollapsed}
                                 />
                             )}
                         </Flex>
+                        {/* 用户信息 */}
                         <Flex className="w-full gap-2" align="center" vertical={collapsed}>
                             <Avatar
                                 className="w-8 min-w-8"
@@ -313,14 +319,28 @@ const User: React.FC = withAuth(() => {
                             </Content>
                         </Flex>
                     </Flex>
-                    <Menu
-                        style={{ height: '95%' }}
-                        onClick={onClick}
-                        mode="inline"
-                        items={MenuList}
-                        defaultSelectedKeys={[select]}
-                        inlineCollapsed={collapsed}
-                    />
+                    {/* 侧栏 */}
+                    <ConfigProvider
+                        theme={{
+                            components: {
+                                Menu: {
+                                    itemColor: 'white',
+                                    itemHoverColor: 'white',
+                                },
+                            },
+                        }}
+                    >
+                        <Menu
+                            style={{ height: '95%' }}
+                            onClick={onClick}
+                            mode="inline"
+                            items={MenuList}
+                            selectedKeys={[select]}
+                            inlineCollapsed={collapsed}
+                            forceSubMenuRender
+                        />
+                    </ConfigProvider>
+                    {/* 底部设置 */}
                     <Flex style={{ padding: '5px 0 20px 0' }}>
                         <Flex>{''}</Flex>
                         <Flex>{''}</Flex>
@@ -344,6 +364,7 @@ const User: React.FC = withAuth(() => {
                     </div>
                 </div>
             </Flex>
+            {/* Modal */}
             <ModalAddState
                 open={computedOpen}
                 selectMenuItem={SelectMenuItem}

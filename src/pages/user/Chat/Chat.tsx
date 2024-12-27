@@ -84,7 +84,7 @@ function Chat() {
     const { username, token } = useUserStore();
     const { sendWrapper } = useSend();
     const { setStatus, status: Status } = useServerStatus();
-    const { select } = useUserChat();
+    const { select, setSelect } = useUserChat();
     const [websocketInstance, setWS] = useState<WebSocket | null>();
     const [content, setContent] = useState('');
     const [list, setList] = useState<any[]>([]);
@@ -284,7 +284,10 @@ function Chat() {
                 <Flex className={style.ChatHeader}>
                     <Flex>
                         <LeftOutlined
-                            onClick={() => navigate('/user', { replace: true })}
+                            onClick={() => {
+                                setSelect('');
+                                navigate('/user', { replace: true });
+                            }}
                             className="my-[25%] cursor-pointer select-none rounded-full p-2 transition-colors duration-200 hover:bg-gray-100"
                         />
                     </Flex>
