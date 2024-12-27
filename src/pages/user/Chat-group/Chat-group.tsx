@@ -463,57 +463,73 @@ function ChatGroup() {
                     onClose={() => setDrawerState(false)}
                     getContainer={false}
                 >
-                    <Flex vertical>
-                        <Title level={5}>成员</Title>
-                        <Row className="h-80 min-h-80 overflow-y-scroll">
-                            {currentMembers.map((val) => (
-                                <Dropdown
-                                    key={val.user_id}
-                                    menu={{
-                                        items: CurrentItems(val),
-                                    }}
-                                    trigger={['contextMenu']}
-                                >
-                                    <Col span={6}>
-                                        <Flex
-                                            vertical
-                                            className="cursor-pointer select-none rounded p-2 transition-colors hover:bg-gray-100"
-                                            align="center"
-                                        >
-                                            <AvatarIcon url={val.user_data.avatar} />
-                                            <Tooltip
-                                                title={val.user_data.nickname}
-                                                placement="bottom"
-                                            >
-                                                <Content className="w-14 overflow-hidden text-ellipsis text-nowrap">
-                                                    {val.user_data.nickname}
-                                                </Content>
-                                            </Tooltip>
-                                            <Content>
-                                                {/* 标识 */}
-                                                {val.auth == 2 && (
-                                                    <Tag bordered={false} color="orange">
-                                                        群主
-                                                    </Tag>
-                                                )}
-                                                {val.auth == 1 && (
-                                                    <Tag bordered={false} color="green">
-                                                        管理
-                                                    </Tag>
-                                                )}
-                                                {val.auth == 0 && <Tag bordered={false}>成员</Tag>}
-                                            </Content>
-                                        </Flex>
-                                    </Col>
-                                </Dropdown>
-                            ))}
-                        </Row>
+                    <Flex className="h-full w-full" gap={20} vertical>
+                        <Flex gap={5}>
+                            <AvatarIcon url={currentGroup.group_avatar}></AvatarIcon>
+                            <Flex align="center">{currentGroup.group_name}</Flex>
+                        </Flex>
+                        <Flex gap={5} vertical>
+                            <Title level={5}>群标识</Title>
+                            <Content>{currentGroup.group_id}</Content>
+                        </Flex>
+                        <Flex gap={5} vertical>
+                            <Title level={5}>简介</Title>
+                            <Content>{currentGroup.group_desc}</Content>
+                        </Flex>
                         <Flex vertical>
-                            <Button onClick={handleExitClick}>
-                                {(currentGroup?.group_master || '') === username
-                                    ? '删除群组'
-                                    : '退出群聊'}
-                            </Button>
+                            <Title level={5}>成员</Title>
+                            <Row className="h-80 min-h-80 overflow-y-scroll">
+                                {currentMembers.map((val) => (
+                                    <Dropdown
+                                        key={val.user_id}
+                                        menu={{
+                                            items: CurrentItems(val),
+                                        }}
+                                        trigger={['contextMenu']}
+                                    >
+                                        <Col span={6}>
+                                            <Flex
+                                                vertical
+                                                className="cursor-pointer select-none rounded p-2 transition-colors hover:bg-gray-100"
+                                                align="center"
+                                            >
+                                                <AvatarIcon url={val.user_data.avatar} />
+                                                <Tooltip
+                                                    title={val.user_data.nickname}
+                                                    placement="bottom"
+                                                >
+                                                    <Content className="w-14 overflow-hidden text-ellipsis text-nowrap">
+                                                        {val.user_data.nickname}
+                                                    </Content>
+                                                </Tooltip>
+                                                <Content>
+                                                    {/* 标识 */}
+                                                    {val.auth == 2 && (
+                                                        <Tag bordered={false} color="orange">
+                                                            群主
+                                                        </Tag>
+                                                    )}
+                                                    {val.auth == 1 && (
+                                                        <Tag bordered={false} color="green">
+                                                            管理
+                                                        </Tag>
+                                                    )}
+                                                    {val.auth == 0 && (
+                                                        <Tag bordered={false}>成员</Tag>
+                                                    )}
+                                                </Content>
+                                            </Flex>
+                                        </Col>
+                                    </Dropdown>
+                                ))}
+                            </Row>
+                            <Flex vertical>
+                                <Button onClick={handleExitClick}>
+                                    {(currentGroup?.group_master || '') === username
+                                        ? '删除群组'
+                                        : '退出群聊'}
+                                </Button>
+                            </Flex>
                         </Flex>
                     </Flex>
                 </Drawer>
