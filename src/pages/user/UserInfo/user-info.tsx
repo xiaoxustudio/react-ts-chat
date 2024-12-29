@@ -23,6 +23,9 @@ function UserInfoComp() {
                 message.error(data.msg);
             }
         });
+    const handleValidEmail = () => {
+        message.info('未开发');
+    };
     useEffect(() => {
         updateInfo();
     }, []); //eslint-disable-line
@@ -74,7 +77,9 @@ function UserInfoComp() {
                         {data.email_auth ? (
                             <Tag color="green">已验证</Tag>
                         ) : (
-                            <Tag color="red">未验证</Tag>
+                            <Tag className='cursor-pointer select-none' color="red" onClick={handleValidEmail}>
+                                未验证
+                            </Tag>
                         )}
                     </span>
                 </Flex>

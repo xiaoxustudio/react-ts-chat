@@ -61,7 +61,7 @@ function Login() {
                                 name="username"
                                 rules={[
                                     { required: true, message: '请输入你的用户名!' },
-                                    { pattern: /^[a-zA-Z]+$/, message: '用户名需要为英文字母' },
+                                    { pattern: /^[a-zA-Z0-9]+$/, message: '用户名只能包含英文字母、数字' },
                                     {
                                         min: 2,
                                         max: 10,
