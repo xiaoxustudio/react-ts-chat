@@ -156,7 +156,7 @@ const User: React.FC = withAuth(() => {
                         val.items = allList;
                         return val;
                     });
-                    allList.length > 1 && setIsOpenShow(true);
+                    allList.length > 0 && setIsOpenShow(true);
                 });
             });
     });

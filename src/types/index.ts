@@ -8,6 +8,8 @@ export interface RepsonseData {
     msg: string;
     data: object[];
 }
+
+// 登录data
 export interface LoginData extends Omit<RepsonseData, 'data'> {
     data: {
         token: string;
@@ -16,8 +18,10 @@ export interface LoginData extends Omit<RepsonseData, 'data'> {
     };
 }
 
+// 用户信息
 export interface UserInfo {
     email: string;
+    email_auth: number;
     group: number;
     login_time: string;
     nickname: string;
@@ -26,6 +30,8 @@ export interface UserInfo {
     username: string;
     avatar: string;
 }
+
+// 好友
 export interface UserFriend {
     add_time: string;
     friend_id: number;
@@ -34,6 +40,7 @@ export interface UserFriend {
     friend_data: UserInfo;
 }
 
+// 群组
 export interface GroupInfo {
     id: number;
     group_id: string;
@@ -44,6 +51,7 @@ export interface GroupInfo {
     group_master: string;
 }
 
+// 用户群组（查询群组数据
 export interface UserGroup {
     id: string;
     user_id: string;
@@ -53,6 +61,7 @@ export interface UserGroup {
     group_data: GroupInfo;
 }
 
+// 群组成员（查询成员数据
 export interface GroupMember {
     id: string;
     user_id: string;

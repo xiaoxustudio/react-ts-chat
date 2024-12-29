@@ -80,6 +80,12 @@ const ModalAddState: FC<NProp> = (prop) => {
                                 <div>
                                     <Title level={5}>昵称：</Title>
                                     {(stateInfo as UserInfo).nickname}
+                                    <span className="ml-2 font-mono">
+                                        ({(stateInfo as UserInfo).username})
+                                    </span>
+                                </div>
+                                <div>
+                                    <Title level={5}>权限组：</Title>
                                     {(stateInfo as UserInfo).group ? (
                                         <Tag
                                             bordered={false}
@@ -90,10 +96,6 @@ const ModalAddState: FC<NProp> = (prop) => {
                                     ) : (
                                         <Tag>普通用户</Tag>
                                     )}
-                                </div>
-                                <div>
-                                    <Title level={5}>用户名：</Title>
-                                    {(stateInfo as UserInfo).username}
                                 </div>
                                 <div>
                                     <Title level={5}>电子邮箱：</Title>

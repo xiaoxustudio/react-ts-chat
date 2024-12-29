@@ -70,6 +70,13 @@ function UserInfoComp() {
                 <Flex>
                     <Content className="text-nowrap">电子邮箱：</Content>
                     <Input type="email" value={data.email ?? ''} readOnly />
+                    <span className="ml-2">
+                        {data.email_auth ? (
+                            <Tag color="green">已验证</Tag>
+                        ) : (
+                            <Tag color="red">未验证</Tag>
+                        )}
+                    </span>
                 </Flex>
                 <Flex>
                     <Content className="text-nowrap">电话：</Content>

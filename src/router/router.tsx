@@ -5,6 +5,7 @@ import Login from '@/pages/Login';
 import Register from '@/pages/Register';
 import User from '@/pages/user/User';
 import NotFound from '@/pages/not-found/NotFound';
+import TokenVerify from '@/pages/token/Token';
 const routes: RouteObject[] = [
     {
         path: '/',
@@ -44,6 +45,10 @@ const routes: RouteObject[] = [
     {
         path: '/register',
         element: <Register />,
+    },
+    {
+        path: '/token',
+        element: <TokenVerify />,
     },
     {
         // 404 页面，确保放在最后
