@@ -185,7 +185,7 @@ function UserInfoComp() {
                     </Flex>
                     <Flex>
                         <Space className="text-nowrap">电话：</Space>
-                        <Input value={data.phone ?? ''} readOnly />
+                        <Input value={data.phone ? data.phone : ''} readOnly />
                     </Flex>
                     <Flex>
                         <Space className="text-nowrap">注册时间：</Space>
