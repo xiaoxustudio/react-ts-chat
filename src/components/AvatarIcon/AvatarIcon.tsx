@@ -10,7 +10,7 @@ function AvatarIcon(prop: AvatarIconProp) {
     return (
         <Avatar
             {...reset}
-            size="large"
+            size={reset.size ?? 'large'}
             icon={!url && <UserOutlined />}
             src={`${ServerUrl}${url?.slice(1)}`}
         />

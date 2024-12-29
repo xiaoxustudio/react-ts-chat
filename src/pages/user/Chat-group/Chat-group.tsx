@@ -19,7 +19,7 @@ import {
 import ChatContainer from '@/components/ChatContainer/ChatContainer';
 import useUserStore from '@/store/useUserStore';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { AllowFileType, ServerUrl, WsCode, wsUrlGroup } from '@/consts';
+import { AllowFileType, RepCode, ServerUrl, WsCode, wsUrlGroup } from '@/consts';
 import useSend from '@/hook/useSend';
 import useServerStatus from '@/store/useServer';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -123,7 +123,7 @@ function ChatGroup() {
                                 group: currentGroup.group_id,
                                 user: val.user_id,
                             }).then((data) => {
-                                if (data.code) {
+                                if (data.code == RepCode.Success) {
                                     message.success(data.msg);
                                     updateMembers();
                                 } else {
@@ -142,7 +142,7 @@ function ChatGroup() {
                             group: currentGroup.group_id,
                             user: val.user_id,
                         }).then((data) => {
-                            if (data.code) {
+                            if (data.code == RepCode.Success) {
                                 message.success(data.msg);
                                 updateMembers();
                             } else {
@@ -163,7 +163,7 @@ function ChatGroup() {
             message.info('未开发！');
         } else {
             ExitGroup({ group: currentGroup.group_id }).then((data) => {
-                if (data.code) {
+                if (data.code == RepCode.Success) {
                     message.success(data.msg);
                     navigate('/user', { replace: true });
                     siderBus.emit('updateSider');
@@ -232,7 +232,7 @@ function ChatGroup() {
     const updateMembers = () => {
         setDrawLoading(true);
         GetGroupMembers({ group: params.group_id! }).then((data) => {
-            if (data.code) {
+            if (data.code == RepCode.Success) {
                 const members = data.data as unknown as GroupMember[];
                 setCurrentMembers(members);
             }
@@ -298,7 +298,7 @@ function ChatGroup() {
             // 是否加入了群聊
             GetJoinGroup({ user: username })
                 .then((data) => {
-                    if (data.code) {
+                    if (data.code == RepCode.Success) {
                         const group = data.data as GroupInfo[];
                         if (group.find((val) => val.group_id === info.group_id)) return;
                     }

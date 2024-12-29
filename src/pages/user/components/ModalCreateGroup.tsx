@@ -7,7 +7,7 @@ import { Input } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
 import { Button } from 'antd';
 import CreateGroup, { CreateGroupProp } from '@/apis/group/create-group';
-import { ServerUrl } from '@/consts';
+import { RepCode, ServerUrl } from '@/consts';
 import { Upload } from 'antd';
 import useUserStore from '@/store/useUserStore';
 import { UploadChangeParam, UploadFile } from 'antd/es/upload';
@@ -30,7 +30,7 @@ const ModalCreateGroup: FC<ModalFuncProps> = (prop) => {
     };
     const onSubmit = () => {
         CreateGroup(groupInfo).then((data) => {
-            if (data.code) {
+            if (data.code == RepCode.Success) {
                 siderBus.emit('updateSider');
                 prop.onCancel?.();
                 message.success('创建群组成功！');

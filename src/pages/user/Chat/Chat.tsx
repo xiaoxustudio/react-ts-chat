@@ -14,7 +14,7 @@ import {
 import ChatContainer from '@/components/ChatContainer/ChatContainer';
 import useUserStore from '@/store/useUserStore';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { AllowFileType, ServerUrl, WsCode, wsUrl } from '@/consts';
+import { AllowFileType, RepCode, ServerUrl, WsCode, wsUrl } from '@/consts';
 import useSend from '@/hook/useSend';
 import useServerStatus from '@/store/useServer';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -92,7 +92,7 @@ function Chat() {
             label: '删除好友',
             onClick() {
                 DelFriend({ user: currentPeople.username }).then((data) => {
-                    if (data.code) {
+                    if (data.code == RepCode.Success) {
                         message.success('删除成功！');
                         navigate('/user', { replace: true });
                         siderBus.emit('updateSider');
@@ -202,7 +202,7 @@ function Chat() {
             }
             // 是否有该好友
             GetFriend({ user: username }).then((data) => {
-                if (data.code) {
+                if (data.code == RepCode.Success) {
                     const users = data.data as UserFriend[];
                     if (users.find((val) => val.friend_data.username === info.username)) return;
                 }

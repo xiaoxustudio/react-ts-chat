@@ -193,7 +193,7 @@ const User: React.FC = withAuth(() => {
                                 </Content>
                             </Flex>
                         ),
-                        icon: <AvatarIcon url={val.friend_data.avatar} />,
+                        icon: <AvatarIcon size="default" url={val.friend_data.avatar} />,
                     }));
                     allList = allList.concat(pFdata);
                 }
@@ -219,7 +219,7 @@ const User: React.FC = withAuth(() => {
                                     </Content>
                                 </Flex>
                             ),
-                            icon: <AvatarIcon url={val.group_data.group_avatar} />,
+                            icon: <AvatarIcon size="default" url={val.group_data.group_avatar} />,
                         }));
                         allList = allList.concat(pFdata);
                     }
