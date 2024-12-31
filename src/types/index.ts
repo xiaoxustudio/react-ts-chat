@@ -1,8 +1,10 @@
 import { WsCode } from '@/consts';
 import { MenuProps } from 'antd';
 import { InputProps } from 'antd/es/input';
+import { DataNode } from 'antd/es/tree';
 // 去除undefined
 export type NonUndefined<T> = T extends undefined ? never : T;
+
 export interface RepsonseData {
     code: number;
     msg: string;
@@ -78,7 +80,43 @@ interface _SearchInputProps {
 
 export interface WsData {
     type: WsCode;
-    message: string;
+    message: string | ArrayBufferLike;
     data?: any;
 }
+
+export interface IDoc {
+    id: string; // ID
+    blcok: string; // blockID
+    user_id: string; // 属于用户
+    type: string; // 类型 0 文件夹 1 页面
+    content: string; // 页面内容
+    status: string; // block状态 0 锁定 1 可编辑
+}
+
+export interface IDoc {
+    id: string; // ID
+    blcok: string; // blockID
+    user_id: string; // 属于用户
+    type: string; // 类型 0 文件夹 1 页面
+    content: string; // 页面内容
+    status: string; // block状态 0 锁定 1 可编辑
+}
+export interface DocItem {
+    id: number; // ID
+    block: string; // blockID
+    block_desc: string; // 页面简介
+    block_name: string; // 页面名称
+    user_id: string; // 属于用户
+    type: number; // 类型 0 文件夹 1 页面
+    content: string; // 页面内容
+    status: number; // block状态 0 锁定 1 可编辑
+}
+
+export interface DocItemData extends Partial<DocItem>, DataNode {
+    key: string;
+    label: string;
+    title: string;
+    chilren: DocItemData[];
+}
+
 export type SearchInputProps = _SearchInputProps & InputProps;

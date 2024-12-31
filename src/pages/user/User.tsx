@@ -84,6 +84,13 @@ const User: React.FC = withAuth(() => {
                 },
             },
             {
+                key: 'document',
+                label: '文档',
+                onClick: () => {
+                    navigate('/user/document');
+                },
+            },
+            {
                 key: 'login',
                 label: '登出',
                 onClick: () => {

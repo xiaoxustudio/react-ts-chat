@@ -6,6 +6,7 @@ import Register from '@/pages/Register';
 import User from '@/pages/user/User';
 import NotFound from '@/pages/not-found/NotFound';
 import TokenVerify from '@/pages/token/Token';
+import DocumentInstance from '@/pages/document';
 const routes: RouteObject[] = [
     {
         path: '/',
@@ -25,6 +26,10 @@ const routes: RouteObject[] = [
                     {
                         path: 'user-info',
                         Component: lazy(() => import('@/pages/user/UserInfo/user-info')),
+                    },
+                    {
+                        path: 'document',
+                        element: <DocumentInstance />,
                     },
                     {
                         path: ':user_id/chat',
