@@ -3,7 +3,7 @@ import { BubbleMenu, EditorContent, useEditor } from '@tiptap/react';
 import { Link } from '@tiptap/extension-link';
 import StarterKit from '@tiptap/starter-kit';
 import { Image } from '@tiptap/extension-image';
-import { Empty, Flex, Input, message, Tag } from 'antd';
+import { Empty, Flex, message, Spin, Tag } from 'antd';
 import CharacterCount from '@tiptap/extension-character-count';
 import { ChangeEvent, useEffect, useState } from 'react';
 import { WsCode, wsUrlDoc } from '@/consts';
@@ -26,6 +26,7 @@ const DocumentInstance = () => {
     const [isSendConent, setIsSendContent] = useState(false);
     const [isSendTitle, setIsSendTitle] = useState(false);
     const [titleContent, setTitleContent] = useState('');
+    const [loadingState, setLoadingState] = useState(false);
     const editor = useEditor({
         //使用扩展
         extensions: [
@@ -97,6 +98,7 @@ const DocumentInstance = () => {
 
     useEffect(() => {
         if (!select || !select.block) return;
+        setLoadingState(true);
         const ws = new WebSocket(
             `${wsUrlDoc}?user=${username}&token=${token}&block=${select.block}`,
         );
@@ -112,11 +114,12 @@ const DocumentInstance = () => {
                         },
                     }),
                 );
-                message.success('文档连接成功！');
+                // message.success('文档连接成功！');
                 if (editor) {
                     editor.setEditable(true);
                     setIsEditor(true);
                 }
+                setLoadingState(false);
             }
         };
         ws.onopen = HandleOpen;
@@ -127,7 +130,7 @@ const DocumentInstance = () => {
         return () => {
             ws.close();
         };
-    }, [select, username, token, wsUrlDoc, editor]); //eslint-disable-line
+    }, [select]); //eslint-disable-line
     return (
         <Flex className="h-full w-full p-5">
             {/* 侧栏 */}
@@ -169,24 +172,26 @@ const DocumentInstance = () => {
                     {!select && <Empty className="w-full" description="请选择一个文档进行编辑" />}
                     {select && (
                         <>
-                            <Flex className="w-full">
-                                <Content className="w-full">
-                                    <input
-                                        className="h-full w-full px-10 py-5 text-3xl font-bold outline-none"
-                                        placeholder="请输入标题"
-                                        value={titleContent}
-                                        onFocus={() => setIsSendTitle(true)}
-                                        onBlur={() => setIsSendTitle(false)}
-                                        onChange={handleTitleContent}
-                                        readOnly={!isEditor}
-                                    />
-                                </Content>
-                            </Flex>
-                            <EditorContent
-                                className="h-full w-full outline-none"
-                                editor={editor}
-                                placeholder="请输入内容"
-                            />
+                            <Spin wrapperClassName="h-full w-full" spinning={loadingState}>
+                                <Flex className="w-full">
+                                    <Content className="w-full">
+                                        <input
+                                            className="h-full w-full px-10 py-5 text-3xl font-bold outline-none"
+                                            placeholder="请输入标题"
+                                            value={titleContent}
+                                            onFocus={() => setIsSendTitle(true)}
+                                            onBlur={() => setIsSendTitle(false)}
+                                            onChange={handleTitleContent}
+                                            readOnly={!isEditor}
+                                        />
+                                    </Content>
+                                </Flex>
+                                <EditorContent
+                                    className="h-full w-full outline-none"
+                                    editor={editor}
+                                    placeholder="请输入内容"
+                                />
+                            </Spin>
                         </>
                     )}
                 </Flex>

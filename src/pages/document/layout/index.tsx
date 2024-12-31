@@ -1,16 +1,17 @@
 import { Button, Divider, Flex, message } from 'antd';
 import Title from 'antd/es/typography/Title';
 import SiderTree from './sider-tree/sider-tree';
-import GetPages from '@/apis/doc/add-friend';
+import GetPages from '@/apis/doc/get-pages';
 import useUserStore from '@/store/useUserStore';
 import { RepCode } from '@/consts';
 import { useEffect, useState } from 'react';
 import { DocItem, DocItemData } from '@/types';
 import { Content } from 'antd/es/layout/layout';
-import { FileMarkdownOutlined, LeftOutlined } from '@ant-design/icons';
+import { FileMarkdownOutlined, LeftOutlined, PlusOutlined } from '@ant-design/icons';
 import useDoc from '@/store/useDoc';
 import { Key } from 'antd/es/table/interface';
 import { useNavigate } from 'react-router';
+import CreatePage from '@/apis/doc/create-page';
 
 function DocumentSider() {
     const { username } = useUserStore();
@@ -21,13 +22,12 @@ function DocumentSider() {
         GetPages({ user: username }).then((data) => {
             if (data.code === RepCode.Success) {
                 // message.success(data.msg);
-                let num = 0;
                 const list = data.data as unknown as DocItem[];
                 const processData = list.map(
                     (val) =>
                         ({
                             ...val,
-                            key: `${num++}`,
+                            key: val.id,
                             children: [],
                             title: val.block_name,
                             icon: <FileMarkdownOutlined />,
@@ -39,6 +39,16 @@ function DocumentSider() {
             }
         });
     };
+
+    const handleCreatePage = () =>
+        CreatePage({ type: 1 }).then((data) => {
+            if (data.code === RepCode.Success) {
+                message.success(data.msg);
+                updatePages();
+            } else {
+                message.error(data.msg);
+            }
+        });
 
     const onBackButton = () => {
         reset();
@@ -66,6 +76,12 @@ function DocumentSider() {
             </Flex>
             <Flex>
                 <Divider />
+            </Flex>
+            <Flex>
+                <PlusOutlined
+                    className="cursor-pointer select-none rounded-full p-2 transition-colors duration-200 hover:bg-gray-100"
+                    onClick={handleCreatePage}
+                />
             </Flex>
             <Flex>
                 <SiderTree

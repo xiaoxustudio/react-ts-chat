@@ -11,12 +11,11 @@ interface SiderTreeProp extends TreeProps {
 function SiderTree({ list, ...reset }: SiderTreeProp) {
     const [ListData, setListData] = useState<DocItemData[]>([]);
     useEffect(() => {
-        let num = 0;
         const processData = list.map(
             (val) =>
                 ({
                     ...val,
-                    key: `${num++}`,
+                    key: val.id,
                     children: [],
                     title: val.block_name,
                     icon: <FileMarkdownOutlined />,
