@@ -16,6 +16,7 @@ import './index.less';
 import { Content } from 'antd/es/layout/layout';
 import useDoc from '@/store/useDoc';
 import { DocItem } from '@/types';
+import { debounce } from 'radash';
 
 const DocumentInstance = () => {
     const { select } = useDoc();
@@ -60,6 +61,16 @@ const DocumentInstance = () => {
                 );
             }
         },
+        onTransaction: debounce({ delay: 500 }, ({ editor }) => {
+            if (wsIns && isSendConent && wsIns.readyState === 1) {
+                wsIns.send(
+                    sendWrapper({
+                        type: WsCode.ChangeContent,
+                        message: editor.getHTML(),
+                    }),
+                );
+            }
+        }),
     });
 
     const handleError = () => {
@@ -98,6 +109,7 @@ const DocumentInstance = () => {
 
     useEffect(() => {
         if (!select || !select.block) return;
+        if (wsIns instanceof WebSocket) wsIns.close();
         setLoadingState(true);
         const ws = new WebSocket(
             `${wsUrlDoc}?user=${username}&token=${token}&block=${select.block}`,
@@ -139,6 +151,7 @@ const DocumentInstance = () => {
             </Sider>
             {/* 编辑器 */}
             <Flex className="h-full w-full p-5" vertical>
+                {/* 悬浮栏 */}
                 {editor && (
                     <BubbleMenu editor={editor} tippyOptions={{ duration: 100 }}>
                         <div className="bubble-menu flex gap-2 rounded border bg-white px-4 py-1 shadow-sm">
