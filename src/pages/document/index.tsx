@@ -3,9 +3,9 @@ import { BubbleMenu, EditorContent, useEditor } from '@tiptap/react';
 import { Link } from '@tiptap/extension-link';
 import StarterKit from '@tiptap/starter-kit';
 import { Image } from '@tiptap/extension-image';
-import { Empty, Flex, message, Tag } from 'antd';
+import { Empty, Flex, Input, message, Tag } from 'antd';
 import CharacterCount from '@tiptap/extension-character-count';
-import { useEffect, useState } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
 import { WsCode, wsUrlDoc } from '@/consts';
 import useUserStore from '@/store/useUserStore';
 import 'prosemirror-view/style/prosemirror.css';
@@ -15,6 +15,7 @@ import DocumentSider from './layout';
 import './index.less';
 import { Content } from 'antd/es/layout/layout';
 import useDoc from '@/store/useDoc';
+import { DocItem } from '@/types';
 
 const DocumentInstance = () => {
     const { select } = useDoc();
@@ -23,6 +24,8 @@ const DocumentInstance = () => {
     const [wsIns, setWsIns] = useState<WebSocket>();
     const [isEditor, setIsEditor] = useState(false);
     const [isSendConent, setIsSendContent] = useState(false);
+    const [isSendTitle, setIsSendTitle] = useState(false);
+    const [titleContent, setTitleContent] = useState('');
     const editor = useEditor({
         //使用扩展
         extensions: [
@@ -68,12 +71,26 @@ const DocumentInstance = () => {
         wsIns.close();
     };
 
+    const handleTitleContent = (e: ChangeEvent<HTMLInputElement>) => {
+        const val = e.target.value;
+        if (wsIns && isSendTitle && wsIns.readyState === 1) {
+            wsIns.send(
+                sendWrapper({
+                    type: WsCode.ChangeTitle,
+                    message: val,
+                }),
+            );
+        }
+        setTitleContent(val);
+    };
+
     const handleMessage = (ws: MessageEvent) => {
         try {
             const data = JSON.parse(ws.data);
+            const doc = data.data as DocItem;
+            setTitleContent(doc.block_name);
             editor?.commands.setContent(data.message);
         } catch {
-            console.log('xuran');
             wsIns?.close();
         }
     };
@@ -147,14 +164,30 @@ const DocumentInstance = () => {
                 <Flex
                     className="h-[95%] min-h-[95%] w-full overflow-y-scroll rounded border"
                     align="center"
+                    vertical
                 >
                     {!select && <Empty className="w-full" description="请选择一个文档进行编辑" />}
                     {select && (
-                        <EditorContent
-                            className="h-full w-full outline-none"
-                            editor={editor}
-                            placeholder="请输入内容"
-                        />
+                        <>
+                            <Flex className="w-full">
+                                <Content className="w-full">
+                                    <input
+                                        className="h-full w-full px-10 py-5 text-3xl font-bold outline-none"
+                                        placeholder="请输入标题"
+                                        value={titleContent}
+                                        onFocus={() => setIsSendTitle(true)}
+                                        onBlur={() => setIsSendTitle(false)}
+                                        onChange={handleTitleContent}
+                                        readOnly={!isEditor}
+                                    />
+                                </Content>
+                            </Flex>
+                            <EditorContent
+                                className="h-full w-full outline-none"
+                                editor={editor}
+                                placeholder="请输入内容"
+                            />
+                        </>
                     )}
                 </Flex>
                 {select && (

@@ -20,6 +20,7 @@ export enum WsCode {
     DisConnectChannel,
     UpdateMsgList,
     ChangeContent,
+    ChangeTitle,
 }
 
 /* 静态界面默认样式 */
