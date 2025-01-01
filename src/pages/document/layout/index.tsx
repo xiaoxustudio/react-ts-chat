@@ -12,6 +12,7 @@ import useDoc from '@/store/useDoc';
 import { Key } from 'antd/es/table/interface';
 import { useNavigate } from 'react-router';
 import CreatePage from '@/apis/doc/create-page';
+import sideDocrBus from '@/event-bus/sider-doc-bus';
 
 function DocumentSider() {
     const { username } = useUserStore();
@@ -63,6 +64,11 @@ function DocumentSider() {
 
     useEffect(() => {
         updatePages();
+        const handleUpdateSider = () => updatePages();
+        sideDocrBus.on('updateSider', handleUpdateSider);
+        return () => {
+            sideDocrBus.off('updateSider', handleUpdateSider);
+        };
     }, []); //eslint-disable-line
     return (
         <Flex className="h-full w-full" vertical>
@@ -86,6 +92,7 @@ function DocumentSider() {
             <Flex>
                 <SiderTree
                     defaultSelectedKeys={[select.key]}
+                    selectedKeys={[select.key]}
                     list={PagesList}
                     onSelect={onSelectNode}
                 />

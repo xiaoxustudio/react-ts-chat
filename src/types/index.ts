@@ -113,9 +113,6 @@ export interface DocItem {
 }
 
 export interface DocItemData extends Partial<DocItem>, DataNode {
-    key: string;
-    label: string;
-    title: string;
     chilren: DocItemData[];
 }
 

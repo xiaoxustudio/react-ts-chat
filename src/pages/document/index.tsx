@@ -17,6 +17,7 @@ import { Content } from 'antd/es/layout/layout';
 import useDoc from '@/store/useDoc';
 import { DocItem } from '@/types';
 import { debounce } from 'radash';
+import sideDocrBus from '@/event-bus/sider-doc-bus';
 
 const DocumentInstance = () => {
     const { select } = useDoc();
@@ -44,7 +45,7 @@ const DocumentInstance = () => {
         autofocus: true,
         // 编辑器是否可用
         editable: isEditor,
-        injectCSS: false,
+        injectCSS: true,
         onFocus() {
             setIsSendContent(true);
         },
@@ -83,6 +84,10 @@ const DocumentInstance = () => {
         wsIns.close();
     };
 
+    const updateSider = debounce({ delay: 400 }, () => {
+        sideDocrBus.emit('updateSider');
+    });
+
     const handleTitleContent = (e: ChangeEvent<HTMLInputElement>) => {
         const val = e.target.value;
         if (wsIns && isSendTitle && wsIns.readyState === 1) {
@@ -92,6 +97,7 @@ const DocumentInstance = () => {
                     message: val,
                 }),
             );
+            updateSider();
         }
         setTitleContent(val);
     };
@@ -159,19 +165,19 @@ const DocumentInstance = () => {
                                 onClick={() => editor.chain().focus().toggleBold().run()}
                                 className={editor.isActive('bold') ? 'is-active' : ''}
                             >
-                                Bold
+                                加粗
                             </button>
                             <button
                                 onClick={() => editor.chain().focus().toggleItalic().run()}
                                 className={editor.isActive('italic') ? 'is-active' : ''}
                             >
-                                Italic
+                                斜体
                             </button>
                             <button
                                 onClick={() => editor.chain().focus().toggleStrike().run()}
                                 className={editor.isActive('strike') ? 'is-active' : ''}
                             >
-                                Strike
+                                删除线
                             </button>
                         </div>
                     </BubbleMenu>
