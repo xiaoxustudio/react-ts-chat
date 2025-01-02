@@ -205,12 +205,17 @@ const DocumentInstance = () => {
                 )}
                 {/* 编辑器实例 */}
                 <Flex
-                    className="h-[95%] min-h-[95%] w-full overflow-y-scroll rounded border"
+                    className="h-full min-h-[95%] w-full overflow-y-scroll rounded border relative"
                     align="center"
                     vertical
                 >
-                    {!select && <Empty className="w-full" description="请选择一个文档进行编辑" />}
-                    {select && (
+                    {Object.keys(select).length <= 0 && (
+                        <Empty
+                            className="flex h-full w-full items-center justify-center m-0"
+                            description="请选择一个文档进行编辑"
+                        />
+                    )}
+                    {Object.keys(select).length > 0 && (
                         <>
                             <Spin wrapperClassName="h-full w-full" spinning={loadingState}>
                                 <Flex className="w-full">

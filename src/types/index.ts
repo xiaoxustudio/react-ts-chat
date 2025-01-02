@@ -113,6 +113,7 @@ export interface DocItem {
 
 export interface DocItemData extends Partial<DocItem>, DataNode {
     chilren: DocItemData[];
+    doc_data?: Omit<DocPeople, 'user_data'>[];
 }
 
 export type SearchInputProps = _SearchInputProps & InputProps;

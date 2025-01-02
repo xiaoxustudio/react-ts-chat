@@ -1,5 +1,5 @@
 import { DocItemData, DocPeople, UserFriend } from '@/types';
-import { Dropdown, Flex, MenuProps, message, Modal, Select, Tree, TreeProps } from 'antd';
+import { Dropdown, Flex, MenuProps, message, Modal, Select, Tag, Tree, TreeProps } from 'antd';
 import { useEffect, useState } from 'react';
 import { EllipsisOutlined, FileMarkdownOutlined } from '@ant-design/icons';
 import { Content } from 'antd/es/layout/layout';
@@ -30,6 +30,7 @@ function SiderTree({ list, ...reset }: SiderTreeProp) {
     const [selectLoading, setSelectLoading] = useState(false);
 
     const TitleRender = (node: DataNode) => {
+        const nodeEx = node as DocItemData;
         const items: MenuProps['items'] = [
             {
                 label: '权限设置',
@@ -84,12 +85,17 @@ function SiderTree({ list, ...reset }: SiderTreeProp) {
                 <Content className="w-14 overflow-hidden text-ellipsis text-nowrap">
                     {node.title instanceof Function ? node.title(node) : node.title}
                 </Content>
+                {nodeEx.user_id !== username && (
+                    <Content>
+                        <Tag color="cyan">协助</Tag>
+                    </Content>
+                )}
                 <Dropdown menu={{ items }} trigger={['click']}>
                     <EllipsisOutlined
                         className="select-none rounded p-2 transition-colors duration-200 hover:bg-gray-200"
                         onClick={(e) => {
                             e.stopPropagation();
-                            setCurrentItem(node as DocItemData);
+                            setCurrentItem(nodeEx);
                         }}
                     />
                 </Dropdown>

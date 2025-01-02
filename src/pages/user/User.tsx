@@ -26,6 +26,7 @@ import SearchGroup from '@/apis/group/search-group';
 import ModalCreateGroup from './components/ModalCreateGroup';
 import AvatarIcon from '@/components/AvatarIcon/AvatarIcon';
 import styles from './user.module.less';
+import useDoc from '@/store/useDoc';
 
 interface MenuInfo {
     key: string;
@@ -37,6 +38,7 @@ type OnSearchType = NonUndefined<SearchProps['onChange']>;
 const User: React.FC = withAuth(() => {
     const navigate = useNavigate();
     const { resetLogin } = useUserStore();
+    const { reset } = useDoc();
     const { nickname, username, data } = useUserStore();
     const { select, setSelect } = useUserChat();
     const [SelectMenuItem, setSelectMenuItem] = useState<ItemType | undefined>(); // 当前选择的联系人
@@ -95,6 +97,7 @@ const User: React.FC = withAuth(() => {
                 label: '登出',
                 onClick: () => {
                     resetLogin();
+                    reset();
                     navigate('/login', { replace: true });
                 },
             },
