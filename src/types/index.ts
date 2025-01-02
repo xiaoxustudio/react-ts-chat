@@ -36,7 +36,7 @@ export interface UserInfo {
 // 好友
 export interface UserFriend {
     add_time: string;
-    friend_id: number;
+    friend_id: string;
     id: string;
     user_id: string;
     friend_data: UserInfo;
@@ -84,13 +84,12 @@ export interface WsData {
     data?: any;
 }
 
-export interface IDoc {
-    id: string; // ID
-    blcok: string; // blockID
-    user_id: string; // 属于用户
-    type: string; // 类型 0 文件夹 1 页面
-    content: string; // 页面内容
-    status: string; // block状态 0 锁定 1 可编辑
+export interface DocPeople {
+    id: string;
+    user_id: string;
+    add_time: string; // 添加时间
+    auth: number; // 用户权限：0 可查看 1可编辑 2可管理
+    user_data: UserInfo;
 }
 
 export interface IDoc {

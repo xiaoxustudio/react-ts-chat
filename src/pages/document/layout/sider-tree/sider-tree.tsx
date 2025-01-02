@@ -1,5 +1,5 @@
-import { DocItemData } from '@/types';
-import { Dropdown, Flex, MenuProps, message, Tree, TreeProps } from 'antd';
+import { DocItemData, DocPeople, UserFriend } from '@/types';
+import { Dropdown, Flex, MenuProps, message, Modal, Select, Tree, TreeProps } from 'antd';
 import { useEffect, useState } from 'react';
 import { EllipsisOutlined, FileMarkdownOutlined } from '@ant-design/icons';
 import { Content } from 'antd/es/layout/layout';
@@ -10,15 +10,24 @@ import { RepCode } from '@/consts';
 import sideDocrBus from '@/event-bus/sider-doc-bus';
 import useDoc from '@/store/useDoc';
 import { clone } from 'radash';
+import GetFriend from '@/apis/user/get-friend';
+import useUserStore from '@/store/useUserStore';
+import InvitePeople from '@/apis/doc/invite-people';
+import GetPageColls from '@/apis/doc/get-page-colls';
 
 interface SiderTreeProp extends TreeProps {
     list: DocItemData[];
 }
 
 function SiderTree({ list, ...reset }: SiderTreeProp) {
-    const { select, setSelect } = useDoc();
+    const { select, setSelect, reset: resetSelect } = useDoc();
+    const { username } = useUserStore();
     const [ListData, setListData] = useState<DocItemData[]>([]);
     const [currentItem, setCurrentItem] = useState<DocItemData | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [firendsArr, setFirendsArr] = useState<UserFriend[]>([]);
+    const [selectArr, setSelectArr] = useState<string[]>([]);
+    const [selectLoading, setSelectLoading] = useState(false);
 
     const TitleRender = (node: DataNode) => {
         const items: MenuProps['items'] = [
@@ -34,6 +43,7 @@ function SiderTree({ list, ...reset }: SiderTreeProp) {
                 key: '1',
                 onClick(e) {
                     e.domEvent.stopPropagation();
+                    showModal();
                 },
             },
             {
@@ -55,11 +65,15 @@ function SiderTree({ list, ...reset }: SiderTreeProp) {
                                     setSelect(clist[find - 1]);
                                 } else if (find === 0) {
                                     setSelect(clist[1]);
+                                } else {
+                                    resetSelect();
                                 }
                             }
                             sideDocrBus.emit('updateSider');
+                            message.success(data.msg);
+                        } else {
+                            message.error(data.msg);
                         }
-                        message.success(data.msg);
                     });
                 },
             },
@@ -83,6 +97,65 @@ function SiderTree({ list, ...reset }: SiderTreeProp) {
         );
     };
 
+    const showModal = () => {
+        setSelectLoading(true);
+        GetPageColls({ block: currentItem!.block! })
+            .then((data) => {
+                if (data.code === RepCode.Success) {
+                    const dataList = data.data as DocPeople[];
+                    const colls = dataList.map((val) => val.user_id);
+                    if (colls && colls.length > 1) {
+                        return colls;
+                    }
+                }
+            })
+            .then((colls) => {
+                GetFriend({ user: username }).then((data) => {
+                    if (data.code === RepCode.Success) {
+                        const fdata = (data.data as UserFriend[]).map((val) => ({
+                            ...val,
+                            label: `${val.friend_data.nickname}(${val.friend_id})`,
+                            value: val.friend_id,
+                        }));
+                        setFirendsArr(fdata);
+                        // 既是朋友，又不在协助者中就可以邀请
+                        if (colls) {
+                            const selects = colls.filter(
+                                (val) =>
+                                    fdata.findIndex((v) => v.friend_id === val) !== -1 &&
+                                    val !== username &&
+                                    val,
+                            );
+                            setSelectArr(selects);
+                        }
+                    }
+                    setSelectLoading(false);
+                    setIsModalOpen(true);
+                });
+            });
+    };
+
+    const handleOk = () => {
+        setIsModalOpen(false);
+        InvitePeople({ block: currentItem!.block!, users: selectArr }).then((data) => {
+            if (data.code === RepCode.Success) {
+                message.success(data.msg);
+            } else {
+                message.error(data.msg);
+            }
+            setSelectArr([]);
+        });
+    };
+
+    const handleCancel = () => {
+        setIsModalOpen(false);
+        setSelectArr([]);
+    };
+
+    const handleSelect = (value: string) => {
+        setSelectArr([...selectArr, value]);
+    };
+
     useEffect(() => {
         const processData = list.map(
             (val) =>
@@ -104,6 +177,27 @@ function SiderTree({ list, ...reset }: SiderTreeProp) {
                 showLine
                 {...reset}
             />
+            {isModalOpen && (
+                <Modal
+                    title="邀请协作"
+                    open={isModalOpen}
+                    okText="邀请"
+                    onOk={handleOk}
+                    cancelText="取消"
+                    onCancel={handleCancel}
+                >
+                    <Select
+                        mode="multiple"
+                        allowClear
+                        style={{ width: '100%' }}
+                        placeholder="请选择一个或多个用户"
+                        defaultValue={selectArr}
+                        options={firendsArr}
+                        loading={selectLoading}
+                        onSelect={handleSelect}
+                    />
+                </Modal>
+            )}
         </Flex>
     );
 }

@@ -98,14 +98,18 @@
     }
 }
 
+/* Placeholder */
+.tiptap p.is-editor-empty:first-child::before {
+    color: #adb5bd;
+    content: attr(data-placeholder);
+    float: left;
+    height: 0;
+    pointer-events: none;
+}
+
 /* Bubble menu */
 .bubble-menu {
-    button {
-        background-color: unset;
-        transition: background-color 0.3s linear;
-        padding: 4px 8px;
-        border-radius: 8px;
-
+    .ToolIcon {
         &:hover {
             background-color: #eee;
         }
@@ -114,7 +118,7 @@
             background-color: #ececec;
 
             &:hover {
-                background-color: #cecece;
+                background-color: #ddd;
             }
         }
     }

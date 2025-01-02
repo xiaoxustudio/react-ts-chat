@@ -3,7 +3,7 @@ import { BubbleMenu, EditorContent, useEditor } from '@tiptap/react';
 import { Link } from '@tiptap/extension-link';
 import StarterKit from '@tiptap/starter-kit';
 import { Image } from '@tiptap/extension-image';
-import { Empty, Flex, message, Spin, Tag } from 'antd';
+import { Avatar, Empty, Flex, message, Spin, Tag, Tooltip } from 'antd';
 import CharacterCount from '@tiptap/extension-character-count';
 import { ChangeEvent, useEffect, useState } from 'react';
 import { WsCode, wsUrlDoc } from '@/consts';
@@ -12,12 +12,17 @@ import 'prosemirror-view/style/prosemirror.css';
 import useSend from '@/hook/useSend';
 import Sider from 'antd/es/layout/Sider';
 import DocumentSider from './layout';
-import './index.less';
 import { Content } from 'antd/es/layout/layout';
 import useDoc from '@/store/useDoc';
-import { DocItem } from '@/types';
+import { DocItem, DocPeople } from '@/types';
 import { debounce } from 'radash';
 import sideDocrBus from '@/event-bus/sider-doc-bus';
+import Placeholder from '@tiptap/extension-placeholder';
+import AvatarIcon from '@/components/AvatarIcon/AvatarIcon';
+import classNames from 'classnames';
+import { Bold, Italic, Strikethrough } from 'lucide-react';
+import ToolIcon from './components/ToolIcon';
+import './index.less';
 
 const DocumentInstance = () => {
     const { select } = useDoc();
@@ -28,11 +33,22 @@ const DocumentInstance = () => {
     const [isSendConent, setIsSendContent] = useState(false);
     const [isSendTitle, setIsSendTitle] = useState(false);
     const [titleContent, setTitleContent] = useState('');
+    const [PeopleArr, setPeopleArr] = useState([] as DocPeople[]);
     const [loadingState, setLoadingState] = useState(false);
+
     const editor = useEditor({
         //使用扩展
         extensions: [
-            StarterKit,
+            StarterKit.configure({}),
+            Placeholder.configure({
+                placeholder: ({ node }) => {
+                    if (node.type.name === 'paragraph') {
+                        return '请输入内容';
+                    }
+
+                    return '';
+                },
+            }),
             Image,
             Link,
             Color.configure({
@@ -104,10 +120,18 @@ const DocumentInstance = () => {
 
     const handleMessage = (ws: MessageEvent) => {
         try {
-            const data = JSON.parse(ws.data);
-            const doc = data.data as DocItem;
-            setTitleContent(doc.block_name);
-            editor?.commands.setContent(data.message);
+            const _data = JSON.parse(ws.data);
+            const data = _data.data;
+            const people = data?.people_data;
+            const doc = data?.doc_data as DocItem;
+            if (doc) {
+                setTitleContent(doc.block_name);
+                setIsEditor(doc.status === 1);
+                editor?.commands.setContent(doc.content);
+            }
+            if (people) {
+                setPeopleArr(people);
+            }
         } catch {
             wsIns?.close();
         }
@@ -161,24 +185,21 @@ const DocumentInstance = () => {
                 {editor && (
                     <BubbleMenu editor={editor} tippyOptions={{ duration: 100 }}>
                         <div className="bubble-menu flex gap-2 rounded border bg-white px-4 py-1 shadow-sm">
-                            <button
+                            <ToolIcon
+                                icon={<Bold />}
                                 onClick={() => editor.chain().focus().toggleBold().run()}
                                 className={editor.isActive('bold') ? 'is-active' : ''}
-                            >
-                                加粗
-                            </button>
-                            <button
+                            />
+                            <ToolIcon
+                                icon={<Italic />}
                                 onClick={() => editor.chain().focus().toggleItalic().run()}
                                 className={editor.isActive('italic') ? 'is-active' : ''}
-                            >
-                                斜体
-                            </button>
-                            <button
+                            />
+                            <ToolIcon
+                                icon={<Strikethrough />}
                                 onClick={() => editor.chain().focus().toggleStrike().run()}
                                 className={editor.isActive('strike') ? 'is-active' : ''}
-                            >
-                                删除线
-                            </button>
+                            />
                         </div>
                     </BubbleMenu>
                 )}
@@ -208,7 +229,6 @@ const DocumentInstance = () => {
                                 <EditorContent
                                     className="h-full w-full outline-none"
                                     editor={editor}
-                                    placeholder="请输入内容"
                                 />
                             </Spin>
                         </>
@@ -219,7 +239,32 @@ const DocumentInstance = () => {
                         <Content>
                             累计：{editor && editor.storage.characterCount.characters()} 字
                         </Content>
-                        <Tag color={isEditor ? 'green' : 'red'}>{isEditor ? '可编辑' : '锁定'}</Tag>
+                        <Content>
+                            <Avatar.Group>
+                                {PeopleArr.map((val) => (
+                                    <Tooltip
+                                        key={val.user_id}
+                                        title={val.user_data.nickname}
+                                        placement="top"
+                                    >
+                                        <AvatarIcon
+                                            className={classNames(
+                                                'cursor-pointer shadow-md',
+                                                select.user_id === val.user_id &&
+                                                    'shadow-green-300',
+                                            )}
+                                            size="small"
+                                            url={val.user_data.avatar}
+                                        />
+                                    </Tooltip>
+                                ))}
+                            </Avatar.Group>
+                        </Content>
+                        <Flex align="center">
+                            <Tag color={isEditor ? 'green' : 'red'}>
+                                {isEditor ? '可编辑' : '锁定'}
+                            </Tag>
+                        </Flex>
                     </Flex>
                 )}
             </Flex>
