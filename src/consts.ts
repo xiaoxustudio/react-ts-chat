@@ -19,6 +19,8 @@ export enum WsCode {
     CreateChannel,
     DisConnectChannel,
     UpdateMsgList,
+    DocInit,
+    DocSave,
     ChangeContent,
     ChangeTitle,
 }
@@ -50,6 +52,7 @@ export const AllowFileType = Object.keys({
 });
 
 export const ServerUrl = 'http://localhost:8000'; // 服务器地址
+export const ServerDocUrl = 'http://localhost:8001'; // 文档服务器地址
 export const wsUrl = `${ServerUrl}/imc`; // imc地址
 export const wsUrlGroup = `${ServerUrl}/gimc`; // 群组 imc地址
-export const wsUrlDoc = `${ServerUrl}/doc`; // 文档 地址
+export const wsUrlDoc = `${ServerDocUrl}`; // 文档 地址

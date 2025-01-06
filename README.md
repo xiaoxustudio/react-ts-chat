@@ -2,9 +2,9 @@
 
 基于 `GoFrame` 的聊天系统
 
-前端：`react`
+前端：`react`、`tailwindcss`、`alova`、`mitt`、`zustand`、`tiptap`系列、`yjs`系列等
 
-后端：`golang`
+后端：`golang(goframe)`、`nodejs(koa)`
 
 # 作者留言
 
