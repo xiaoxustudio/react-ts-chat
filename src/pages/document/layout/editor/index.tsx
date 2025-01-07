@@ -11,7 +11,6 @@ import collaboration from '@tiptap/extension-collaboration';
 import CollaborationCursor from '@tiptap/extension-collaboration-cursor';
 
 import * as Y from 'yjs';
-import { IndexeddbPersistence } from 'y-indexeddb';
 import { HocuspocusProvider, onAwarenessUpdateParameters } from '@hocuspocus/provider';
 import extensions from '../../extensions';
 import { generateRandomColors } from '@/utils';
@@ -19,18 +18,17 @@ import EditorContainer from './editor';
 import { StatesProp } from '../../types';
 import './index.less';
 
-const ydoc = new Y.Doc();
-const titleYtext = ydoc.getText('title');
-
 const colors = generateRandomColors(10); // 生成随机颜色
 
 const DocumentInstance = () => {
     const { select } = useDoc();
-    const { data: userData } = useUserStore();
+    const { data: userData, token } = useUserStore();
     const [extensionConfig, setExtnsionConfig] = useState<any[]>(extensions);
     const [titleContent, setTitleContent] = useState('');
     const [loadingState, setLoadingState] = useState(false);
-    const [_, setProvider] = useState<HocuspocusProvider>();
+    const [Provider, setProvider] = useState<HocuspocusProvider>();
+    const [_, setCurrentYdoc] = useState<Y.Doc>();
+    const [currentYText, setCurrentYText] = useState<Y.Text>();
     const [Users, setUsers] = useState<StatesProp[]>();
     const EditorIns = useEditor(
         {
@@ -48,23 +46,27 @@ const DocumentInstance = () => {
     // });
 
     useEffect(() => {
+        if (!currentYText) return;
         const handleObserve = (yy: Y.YTextEvent) => {
             const text = yy.target.toString();
             setTitleContent(text);
         };
-        titleYtext.observe(handleObserve);
+        currentYText.observe(handleObserve);
         return () => {
-            titleYtext.unobserve(handleObserve);
+            currentYText.unobserve(handleObserve);
         };
-    }, []);
+    }, [currentYText]);
 
     useEffect(() => {
         if (!select || !select?.block) return;
+        if (Provider instanceof HocuspocusProvider) {
+            Provider.destroy();
+        }
+        const ydoc = new Y.Doc();
+        const titleYtext = ydoc.getText('title');
+        setCurrentYdoc(ydoc);
+        setCurrentYText(titleYtext);
         setLoadingState(true);
-        // 清除缓存
-        const indexName = `xuran-doc-${select.block}`;
-        indexedDB.deleteDatabase(indexName);
-        new IndexeddbPersistence(indexName, ydoc); // 本地持久化，暂时不用，以后有时间写
         const handleAwareness = ({ states }: onAwarenessUpdateParameters) => {
             const users = states as unknown as StatesProp[];
             if (users) {
@@ -86,6 +88,7 @@ const DocumentInstance = () => {
             url: wsUrlDoc,
             name: select.block,
             document: ydoc,
+            token,
             onAwarenessUpdate: handleAwareness,
         });
         const color = colors[Math.floor(Math.random() * 10)];
@@ -132,8 +135,9 @@ const DocumentInstance = () => {
                     editor={EditorIns}
                     loading={loadingState}
                     onChangeTitle={(e) => {
-                        titleYtext.delete(0, titleYtext.length);
-                        titleYtext.insert(e.target.selectionStart ?? 0, e.target.value);
+                        if (!currentYText) return;
+                        currentYText.delete(0, currentYText.length);
+                        currentYText.insert(e.target.selectionStart ?? 0, e.target.value);
                         setTitleContent(e.target.value);
                     }}
                     title={titleContent}

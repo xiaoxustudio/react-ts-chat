@@ -1,4 +1,5 @@
 import GetPageColls from '@/apis/doc/get-page-colls';
+import RemoveColl from '@/apis/doc/rem-coll';
 import SetAuthCollaborator from '@/apis/doc/set-auth-coll';
 import AvatarIcon from '@/components/AvatarIcon/AvatarIcon';
 import { RepCode } from '@/consts';
@@ -17,7 +18,16 @@ function Auth() {
 
     const handleBack = () => navigate(-1);
 
-    const confirm = (user_id: string) => {};
+    const confirm = (user_id: string) => {
+        RemoveColl({ block, user: user_id }).then((data) => {
+            if (data.code === RepCode.Success) {
+                message.success(data.msg);
+            } else {
+                message.error(data.msg);
+            }
+            update();
+        });
+    };
 
     const handleSelect = (user_id: string, auth: number) => {
         SetAuthCollaborator({ block, user: user_id, auth }).then((data) => {
@@ -33,7 +43,7 @@ function Auth() {
         message.error('Click on No');
     };
 
-    useEffect(() => {
+    const update = () => {
         setInitLoading(true);
         GetPageColls({ block }).then((data) => {
             if (data.code === RepCode.Success) {
@@ -41,6 +51,10 @@ function Auth() {
             }
             setInitLoading(false);
         });
+    };
+
+    useEffect(() => {
+        update();
     }, []); //eslint-disable-line
     return (
         <Flex className="h-full w-full" align="center" vertical>
@@ -59,9 +73,9 @@ function Auth() {
                             <Content>
                                 <strong>页面权限管理</strong>
                             </Content>
-                            <Flex justify="flex-end">
+                            {/* <Flex justify="flex-end">
                                 <Button type="link">邀请协作</Button>
-                            </Flex>
+                            </Flex> */}
                         </Flex>
                     }
                     className="h-full w-full"
