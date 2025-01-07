@@ -6,7 +6,8 @@ import Register from '@/pages/Register';
 import User from '@/pages/user/User';
 import NotFound from '@/pages/not-found/NotFound';
 import TokenVerify from '@/pages/token/Token';
-import DocumentInstance from '@/pages/document';
+import Document from '@/pages/document';
+
 const routes: RouteObject[] = [
     {
         path: '/',
@@ -29,7 +30,18 @@ const routes: RouteObject[] = [
                     },
                     {
                         path: 'document',
-                        element: <DocumentInstance />,
+                        element: <Document />,
+                        children: [
+                            {
+                                path: '',
+                                index: true,
+                                Component: lazy(() => import('@/pages/document/layout/editor')),
+                            },
+                            {
+                                path: ':block/auth',
+                                Component: lazy(() => import('@/pages/document/layout/auth')),
+                            },
+                        ],
                     },
                     {
                         path: ':user_id/chat',

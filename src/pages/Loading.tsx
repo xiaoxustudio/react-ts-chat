@@ -13,7 +13,7 @@ interface LoadingProp {
     loading?: boolean;
 }
 
-function Lodding({ children, loading }: PropsWithChildren<LoadingProp>) {
+function Loading({ children, loading }: PropsWithChildren<LoadingProp>) {
     return (
         <Suspense
             fallback={
@@ -27,4 +27,4 @@ function Lodding({ children, loading }: PropsWithChildren<LoadingProp>) {
     );
 }
 
-export default Lodding;
+export default Loading;

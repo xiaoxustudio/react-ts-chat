@@ -14,14 +14,16 @@ import GetFriend from '@/apis/user/get-friend';
 import useUserStore from '@/store/useUserStore';
 import InvitePeople from '@/apis/doc/invite-people';
 import GetPageColls from '@/apis/doc/get-page-colls';
+import { useNavigate } from 'react-router';
 
 interface SiderTreeProp extends TreeProps {
     list: DocItemData[];
 }
 
 function SiderTree({ list, ...reset }: SiderTreeProp) {
-    const { select, setSelect, reset: resetSelect } = useDoc();
+    const navigate = useNavigate();
     const { username } = useUserStore();
+    const { select, setSelect, reset: resetSelect } = useDoc();
     const [ListData, setListData] = useState<DocItemData[]>([]);
     const [currentItem, setCurrentItem] = useState<DocItemData | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -37,6 +39,8 @@ function SiderTree({ list, ...reset }: SiderTreeProp) {
                 key: '0',
                 onClick(e) {
                     e.domEvent.stopPropagation();
+                    if (!currentItem) return;
+                    navigate(`${currentItem.block}/auth`);
                 },
             },
             {

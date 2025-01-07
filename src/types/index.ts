@@ -73,6 +73,15 @@ export interface GroupMember {
     user_data: UserInfo;
 }
 
+// 协作者
+export interface CollsUser {
+    id: string;
+    user_id: string;
+    add_time: string;
+    auth: number;
+    user_data: UserInfo;
+}
+
 interface _SearchInputProps {
     options?: MenuProps;
     open: boolean;
